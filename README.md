@@ -1,6 +1,8 @@
-# FASE 1: IMPLEMENTACION INICIAL (INFRAESTRUCTURA BASE CONTROL DE VERSIONES Y MODELADO DE DATOS)
+# IMPLEMENTACION DE PROYECTO
 
-# FASE 2: ARQUITECTURA LIMPIA, SEGURIDAD DE PAYLOADS Y LOGICA TRANSACCIONAL
+## FASE 1: IMPLEMENTACION INICIAL (INFRAESTRUCTURA BASE CONTROL DE VERSIONES Y MODELADO DE DATOS)
+
+## FASE 2: ARQUITECTURA LIMPIA, SEGURIDAD DE PAYLOADS Y LOGICA TRANSACCIONAL
 
 Contrato de API para que comiencen a trabajar con Mocks (datos simulados) en el frontend sin bloqueos. Deben implementar la siguiente especificación exacta:
 
@@ -40,10 +42,45 @@ HTTP 400: Ya existe un registro para esta fecha. (Regla de negocio)
 
 HTTP 403: Operación denegada. La postulación no está en estado "Seleccionado". (Máquina de estado)
 
-# FASE 2: AUTENTICACION MEDIANTE JWT Y CONTROL DE ACCESO POR ROLES (RBAC)
+## FASE 2: AUTENTICACION MEDIANTE JWT Y CONTROL DE ACCESO POR ROLES (RBAC)
 
 * ** Para el Frontend **
 
 A partir de ahora, todas las peticiones a endpoints protegidos deben incluir el header:
 
 Authorization: Bearer <TOKEN_DE_SUPABASE>
+
+## FASE 3: MODULO DE OFERTAS Y REGLAS DE ROL (MARKETPLACE)
+
+Especificaciones para configurar los mocks correspondientes a la bolsa de trabajo:
+
+1. Crear Oferta (POST /api/ofertas)
+
+Headers: Authorization: Bearer <TOKEN> (Debe pertenecer a un usuario rol Empresa)
+
+Payload:
+
+{
+  "titulo": "Desarrollador Junior React/Node",
+  "descripcion": "Buscamos estudiante del I.T.S.U. para integrarse al equipo de desarrollo web..."
+}
+
+Respuesta Exitosa (HTTP 201): Retorna el objeto creado con id_oferta y fecha_publicacion.
+
+2. Listar Ofertas (GET /api/ofertas)
+
+Headers: Authorization: Bearer <TOKEN>
+
+Respuesta Exitosa (HTTP 200):
+
+{
+  "data": [
+    {
+      "id_oferta": "uuid-generado",
+      "titulo": "Desarrollador Junior React/Node",
+      "descripcion": "Buscamos estudiante...",
+      "empresa": "Mobilistics / DINAMIC",
+      "fecha_publicacion": "2026-10-13T10:00:00.000Z"
+    }
+  ]
+}

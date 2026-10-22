@@ -13,9 +13,11 @@ app.use(express.json()); // Parsear JSON estricto
 
 // Importar rutas
 const bitacoraRoutes = require('./routes/bitacora.routes');
+const ofertasRoutes = require('./routes/ofertas.routes');
 
 // Usar rutas
 app.use('/api/bitacora', bitacoraRoutes);
+app.use('/api/ofertas', ofertasRoutes);
 
 // Ruta de prueba para verificar salud del servidor
 app.get('/api/health', (req, res) => {
