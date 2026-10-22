@@ -1,3 +1,7 @@
+FASE 1: IMPLEMENTACION INICIAL (INFRAESTRUCTURA BASE CONTROL DE VERSIONES Y MODELADO DE DATOS)
+
+FASE 2: ARQUITECTURA LIMPIA, SEGURIDAD DE PAYLOADS Y LOGICA TRANSACCIONAL
+
 Contrato de API para que comiencen a trabajar con Mocks (datos simulados) en el frontend sin bloqueos. Deben implementar la siguiente especificación exacta:
 
 ENDPOINT: POST /api/bitacora
@@ -35,3 +39,9 @@ HTTP 400: Payload inválido... (Validación de formulario)
 HTTP 400: Ya existe un registro para esta fecha. (Regla de negocio)
 
 HTTP 403: Operación denegada. La postulación no está en estado "Seleccionado". (Máquina de estado)
+
+FASE 2: AUTENTICACION MEDIANTE JWT Y CONTROL DE ACCESO POR ROLES (RBAC)
+
+** para el Frontend **
+A partir de ahora, todas las peticiones a endpoints protegidos deben incluir el header:
+Authorization: Bearer <TOKEN_DE_SUPABASE>

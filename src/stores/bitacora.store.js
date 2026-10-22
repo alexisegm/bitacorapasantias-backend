@@ -1,15 +1,15 @@
 const supabase = require('../config/supabase');
 
 class BitacoraStore {
-    async obtenerEstadoPostulacion(id_postulacion) {
+    async obtenerDetallesPostulacion(id_postulacion) {
         const { data, error } = await supabase
             .from('postulaciones')
-            .select('estado')
+            .select('estado, id_estudiante')
             .eq('id', id_postulacion)
             .single();
         
         if (error) return null;
-        return data.estado;
+        return data;
     }
 
     async verificarRegistroExistente(id_postulacion, fecha) {
