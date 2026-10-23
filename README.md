@@ -1,86 +1,212 @@
-# IMPLEMENTACION DE PROYECTO
+# Contrato de API para frontend
 
-## FASE 1: IMPLEMENTACION INICIAL (INFRAESTRUCTURA BASE CONTROL DE VERSIONES Y MODELADO DE DATOS)
+Este documento permite desarrollar pantallas y flujos con datos simulados antes de conectar el frontend con Supabase. Los ejemplos de respuesta son fixtures: en modo mock, el frontend debe devolverlos desde su servicio simulado sin llamar a este backend.
 
-## FASE 2: ARQUITECTURA LIMPIA, SEGURIDAD DE PAYLOADS Y LOGICA TRANSACCIONAL
+## Inicio con mocks
 
-Contrato de API para que comiencen a trabajar con Mocks (datos simulados) en el frontend sin bloqueos. Deben implementar la siguiente especificación exacta:
+- Base URL local del backend: `http://localhost:3000`.
+- Mantengan los mismos UUID entre fixtures relacionados: una postulación debe apuntar a una oferta y una bitácora a una postulación.
+- Simulen los códigos HTTP y las formas de respuesta documentadas aquí para que la integración posterior requiera menos cambios.
+- Las rutas reales están protegidas. Al conectar el backend, envíen el access token JWT de Supabase en `Authorization`; un token ficticio de mock no autentica una petición real.
 
-ENDPOINT: POST /api/bitacora
-Descripción: Registra una nueva jornada de pasantías.
-Headers requeridos: Authorization: Bearer <JWT_TOKEN> y Content-Type: application/json
+### Headers
 
-Payload Esperado (Lo que el frontend debe enviar):
+Para todas las rutas protegidas:
 
-{
-  "id_postulacion": "123e4567-e89b-12d3-a456-426614174000",
-  "fecha": "2026-10-13",
-  "horas_invertidas": 4.5,
-  "descripcion": "Desarrollo de módulos frontend y conexión inicial con Mocks."
-}
+```http
+Authorization: Bearer <ACCESS_TOKEN_SUPABASE>
+```
 
+Para `POST` y `PATCH` con cuerpo JSON:
 
-(Nota para el equipo de Frontend: NO enviar el campo estado, el servidor forzará automáticamente Registro_Creado y rechazará peticiones que incluyan estados manipulados).
+```http
+Content-Type: application/json
+```
 
-Respuesta Exitosa Esperada - HTTP 200 OK (Lo que el frontend debe simular/recibir):
+Los roles se leen desde `perfiles.rol`. Los nombres son sensibles a mayúsculas y deben coincidir exactamente con los indicados en cada endpoint.
 
-{
-  "mensaje": "Registro de bitácora creado exitosamente.",
-  "data": {
-    "id_registro": "987fcdeb-51a2-43d7-9012-426614174000",
-    "estado_actual": "Registro_Creado",
-    "horas_diarias": 4.5,
-    "total_horas_acumuladas": 120.5 
-  }
-}
+## Ofertas
 
-Respuestas de Error (Para manejar alertas en la UI):
+### Listar ofertas
 
-HTTP 400: Payload inválido... (Validación de formulario)
+`GET /api/ofertas`
 
-HTTP 400: Ya existe un registro para esta fecha. (Regla de negocio)
+Roles permitidos: `Estudiante`, `Empresa`, `Institucion`.
 
-HTTP 403: Operación denegada. La postulación no está en estado "Seleccionado". (Máquina de estado)
+Devuelve solo ofertas activas, ordenadas de la más reciente a la más antigua. Si no hay ofertas activas, devuelve `200` con `data` como arreglo vacío.
 
-## FASE 2: AUTENTICACION MEDIANTE JWT Y CONTROL DE ACCESO POR ROLES (RBAC)
+Respuesta mock `200 OK`:
 
-* ** Para el Frontend **
-
-A partir de ahora, todas las peticiones a endpoints protegidos deben incluir el header:
-
-Authorization: Bearer <TOKEN_DE_SUPABASE>
-
-## FASE 3: MODULO DE OFERTAS Y REGLAS DE ROL (MARKETPLACE)
-
-Especificaciones para configurar los mocks correspondientes a la bolsa de trabajo:
-
-1. Crear Oferta (POST /api/ofertas)
-
-Headers: Authorization: Bearer <TOKEN> (Debe pertenecer a un usuario rol Empresa)
-
-Payload:
-
-{
-  "titulo": "Desarrollador Junior React/Node",
-  "descripcion": "Buscamos estudiante del I.T.S.U. para integrarse al equipo de desarrollo web..."
-}
-
-Respuesta Exitosa (HTTP 201): Retorna el objeto creado con id_oferta y fecha_publicacion.
-
-2. Listar Ofertas (GET /api/ofertas)
-
-Headers: Authorization: Bearer <TOKEN>
-
-Respuesta Exitosa (HTTP 200):
-
+```json
 {
   "data": [
     {
-      "id_oferta": "uuid-generado",
+      "id_oferta": "11111111-1111-4111-8111-111111111111",
       "titulo": "Desarrollador Junior React/Node",
-      "descripcion": "Buscamos estudiante...",
-      "empresa": "Mobilistics / DINAMIC",
+      "descripcion": "Desarrollo de funcionalidades web con acompañamiento del equipo.",
+      "empresa": "Mobilistics",
       "fecha_publicacion": "2026-10-13T10:00:00.000Z"
     }
   ]
 }
+```
+
+### Crear oferta
+
+`POST /api/ofertas`
+
+Rol permitido: `Empresa`.
+
+El payload acepta exactamente estos campos: `titulo` (5 a 150 caracteres) y `descripcion` (mínimo 20 caracteres). No envíen `id`, `id_empresa` ni `activa`.
+
+Request:
+
+```json
+{
+  "titulo": "Desarrollador Junior React/Node",
+  "descripcion": "Desarrollo de funcionalidades web con acompañamiento del equipo."
+}
+```
+
+Respuesta mock `201 Created`:
+
+```json
+{
+  "mensaje": "Oferta de pasantía publicada exitosamente.",
+  "data": {
+    "id_oferta": "11111111-1111-4111-8111-111111111111",
+    "titulo": "Desarrollador Junior React/Node",
+    "descripcion": "Desarrollo de funcionalidades web con acompañamiento del equipo.",
+    "empresa": null,
+    "fecha_publicacion": "2026-10-13T10:00:00.000Z"
+  }
+}
+```
+
+`empresa` puede ser `null` en la respuesta de creación; el listado obtiene el nombre mediante la relación con el perfil.
+
+## Postulaciones
+
+### Postularse a una oferta
+
+`POST /api/postulaciones`
+
+Rol permitido: `Estudiante`.
+
+Request: `id_oferta` debe ser un UUID de una oferta existente.
+
+```json
+{
+  "id_oferta": "11111111-1111-4111-8111-111111111111"
+}
+```
+
+Respuesta mock `201 Created`:
+
+```json
+{
+  "mensaje": "Postulación enviada con éxito.",
+  "data": {
+    "id_postulacion": "22222222-2222-4222-8222-222222222222",
+    "estado_actual": "Enviada",
+    "fecha_registro": "2026-10-13T10:30:00.000Z"
+  }
+}
+```
+
+Un estudiante no puede postularse dos veces a la misma oferta; el backend responde `400` en ese caso.
+
+### Cambiar estado de postulación
+
+`PATCH /api/postulaciones/{id_postulacion}/estado`
+
+Rol permitido: `Empresa` propietaria de la oferta asociada a la postulación.
+
+Request:
+
+```json
+{
+  "nuevo_estado": "En_Revisión_Por_Empresa"
+}
+```
+
+Estados destino aceptados: `En_Revisión_Por_Empresa`, `Entrevista_Asignada`, `Seleccionado`, `Rechazado`. La transición también debe ser legal desde el estado actual:
+
+| Estado actual | Estados destino permitidos |
+| --- | --- |
+| `Enviada` | `En_Revisión_Por_Empresa`, `Rechazado` |
+| `En_Revisión_Por_Empresa` | `Entrevista_Asignada`, `Rechazado` |
+| `Entrevista_Asignada` | `Seleccionado`, `Rechazado` |
+| `Seleccionado` | Ninguno; estado final |
+| `Rechazado` | Ninguno; estado final |
+
+Respuesta mock `200 OK`:
+
+```json
+{
+  "mensaje": "Postulación avanzada exitosamente al estado: En_Revisión_Por_Empresa",
+  "data": {
+    "id_postulacion": "22222222-2222-4222-8222-222222222222",
+    "estado_actual": "En_Revisión_Por_Empresa",
+    "fecha_registro": "2026-10-13T10:30:00.000Z"
+  }
+}
+```
+
+Una transición reconocida por el esquema pero no permitida por la máquina devuelve `400`. Por ejemplo, `Enviada` a `Seleccionado` es ilegal. También pueden ocurrir `403` si la empresa no es propietaria de la oferta y `404` si la postulación no existe.
+
+## Bitácora
+
+### Registrar horas
+
+`POST /api/bitacora`
+
+Rol permitido: `Estudiante` propietario de la postulación. La postulación debe existir y estar en estado `Seleccionado`.
+
+El payload acepta exactamente estos campos:
+
+- `id_postulacion`: UUID.
+- `fecha`: texto con formato `YYYY-MM-DD`.
+- `horas_invertidas`: número mayor que 0 y máximo 8.
+- `descripcion`: texto de al menos 10 caracteres.
+
+No envíen un campo `estado`.
+
+Request:
+
+```json
+{
+  "id_postulacion": "22222222-2222-4222-8222-222222222222",
+  "fecha": "2026-10-20",
+  "horas_invertidas": 4,
+  "descripcion": "Desarrollo y prueba de una funcionalidad del proyecto."
+}
+```
+
+Respuesta mock `200 OK`:
+
+```json
+{
+  "mensaje": "Registro de bitácora creado exitosamente.",
+  "data": {
+    "id_registro": "33333333-3333-4333-8333-333333333333",
+    "estado_actual": "Registro_Creado",
+    "horas_diarias": 4,
+    "total_horas_acumuladas": 4
+  }
+}
+```
+
+El store no inserta `estado`; `Registro_Creado` depende del valor predeterminado configurado en la base de datos. El backend responde `400` si ya existe un registro para esa postulación y fecha, `403` si no pertenece al estudiante o no está seleccionada, y `404` si no encuentra la postulación.
+
+## Errores y requisitos de integración
+
+- `401`: falta el token o es inválido/expiró.
+- `403`: el perfil no existe, el rol no está permitido o el usuario no tiene acceso al recurso.
+- `404`: no se encontró el recurso solicitado.
+- `400`: payload inválido o regla de negocio incumplida, como duplicidad o transición ilegal.
+- `500`: error inesperado del backend o de la base de datos.
+
+Para probar la API real se necesitan un access token válido, un perfil con el rol requerido y los registros relacionados en Supabase. Las respuestas mock de este documento permiten avanzar en la UI sin esos datos; no sustituyen esas precondiciones al integrar el backend.
+
+Nota de validación: el middleware actual formatea errores de Zod usando `error.errors`. Verifiquen esa respuesta con la versión instalada de Zod antes de depender del contenido exacto de `detalles` en errores de payload.
