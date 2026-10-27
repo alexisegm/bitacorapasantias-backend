@@ -199,6 +199,54 @@ Respuesta mock `200 OK`:
 
 El store no inserta `estado`; `Registro_Creado` depende del valor predeterminado configurado en la base de datos. El backend responde `400` si ya existe un registro para esa postulación y fecha, `403` si no pertenece al estudiante o no está seleccionada, y `404` si no encuentra la postulación.
 
+### Cambiar el estado de un registro
+
+`PATCH /api/bitacora/{id_registro}/estado`
+
+Roles aceptados por la ruta: `Estudiante` y `Empresa`. El servicio valida además que el usuario autenticado sea el titular o la empresa propietaria, según la transición.
+
+El cuerpo acepta únicamente `nuevo_estado` y uno de estos valores:
+
+| Estado actual | Estado destino | Quién puede solicitarlo |
+| --- | --- | --- |
+| `Registro_Creado` | `Pendiente_De_Aprobación` | Estudiante titular de la postulación |
+| `Pendiente_De_Aprobación` | `Horas_Aprobadas` | Empresa propietaria de la oferta |
+| `Pendiente_De_Aprobación` | `Horas_Rechazadas` | Empresa propietaria de la oferta |
+| `Horas_Aprobadas` | Ninguno; estado final | Ninguno |
+| `Horas_Rechazadas` | Ninguno; estado final | Ninguno |
+
+Primera transición, solicitada por el estudiante:
+
+```http
+PATCH /api/bitacora/33333333-3333-4333-8333-333333333333/estado
+Authorization: Bearer <TOKEN_DE_ESTUDIANTE>
+Content-Type: application/json
+```
+
+```json
+{
+  "nuevo_estado": "Pendiente_De_Aprobación"
+}
+```
+
+Respuesta mock `200 OK`:
+
+```json
+{
+  "mensaje": "Registro avanzado exitosamente al estado: Pendiente_De_Aprobación",
+  "data": {
+    "id_registro": "33333333-3333-4333-8333-333333333333",
+    "estado_actual": "Pendiente_De_Aprobación",
+    "horas_diarias": 4,
+    "total_horas_acumuladas": 4
+  }
+}
+```
+
+Después, la empresa propietaria puede enviar `{"nuevo_estado":"Horas_Aprobadas"}` o `{"nuevo_estado":"Horas_Rechazadas"}` al mismo endpoint, usando su token. Para ambos casos, la respuesta exitosa tiene el mismo formato y `estado_actual` coincide con el estado solicitado. Si se rechazan las horas, estas dejan de incluirse en `total_horas_acumuladas`.
+
+En modo mock pueden simular estas respuestas sin que exista el registro en Supabase. Para una petición real, el registro y sus relaciones deben existir, y el token debe corresponder al usuario autorizado. Una transición ilegal devuelve `400`; usuario con rol o propiedad incorrectos, `403`; registro inexistente, `404`.
+
 ## Errores y requisitos de integración
 
 - `401`: falta el token o es inválido/expiró.
@@ -208,5 +256,7 @@ El store no inserta `estado`; `Registro_Creado` depende del valor predeterminado
 - `500`: error inesperado del backend o de la base de datos.
 
 Para probar la API real se necesitan un access token válido, un perfil con el rol requerido y los registros relacionados en Supabase. Las respuestas mock de este documento permiten avanzar en la UI sin esos datos; no sustituyen esas precondiciones al integrar el backend.
+
+Pendiente de corregir antes de validar una transición exitosa contra Supabase: `avanzarEstado` usa `registro.postulaciones.id` para recalcular el total después de actualizar el estado, pero `obtenerDetallesRegistro` aún no selecciona ese campo. La actualización podría persistir y luego fallar al calcular el total; este problema no afecta las pruebas con mocks.
 
 Nota de validación: el middleware actual formatea errores de Zod usando `error.errors`. Verifiquen esa respuesta con la versión instalada de Zod antes de depender del contenido exacto de `detalles` en errores de payload.

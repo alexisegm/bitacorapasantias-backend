@@ -11,4 +11,12 @@ const crearRegistroBitacoraSchema = z.object({
 // .strict() ES VITAL: Si envían { ..., "estado": "Horas_Aprobadas" }, la petición será rechazada inmediatamente.
 .strict({ message: "Carga útil rechazada: Se detectaron campos no autorizados en la petición." });
 
-module.exports = { crearRegistroBitacoraSchema };
+const actualizarEstadoBitacoraSchema = z.object({
+    nuevo_estado: z.enum([
+        'Pendiente_De_Aprobación',
+        'Horas_Aprobadas',
+        'Horas_Rechazadas'
+    ], { message: "Transición a estado no reconocido o inválido." })
+}).strict();
+
+module.exports = { crearRegistroBitacoraSchema, actualizarEstadoBitacoraSchema };

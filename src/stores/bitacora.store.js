@@ -53,6 +53,37 @@ class BitacoraStore {
         const total = data.reduce((acc, curr) => acc + Number(curr.horas_invertidas), 0);
         return total;
     }
+
+    async obtenerDetallesRegistro(id_registro) {
+        // Hacemos JOIN profundo para obtener quién es el estudiante y quién es la empresa dueña
+        const { data, error } = await supabase
+            .from('bitacora_horas')
+            .select(`
+                id,
+                estado,
+                postulaciones (
+                    id_estudiante,
+                    ofertas_pasantias ( id_empresa )
+                )
+            `)
+            .eq('id', id_registro)
+            .single();
+        
+        if (error || !data) return null;
+        return data;
+    }
+
+    async actualizarEstado(id_registro, nuevo_estado) {
+        const { data, error } = await supabase
+            .from('bitacora_horas')
+            .update({ estado: nuevo_estado })
+            .eq('id', id_registro)
+            .select()
+            .single();
+
+        if (error) throw new Error(error.message);
+        return data;
+    }
 }
 
 module.exports = new BitacoraStore();

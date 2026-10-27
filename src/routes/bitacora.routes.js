@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const validateSchema = require('../middlewares/validator');
 const { verificarToken, requerirRol } = require('../middlewares/auth.middleware');
-const { crearRegistroBitacoraSchema } = require('../middlewares/schemas/bitacora.schema');
+const {
+    crearRegistroBitacoraSchema,
+    actualizarEstadoBitacoraSchema
+} = require('../middlewares/schemas/bitacora.schema');
 const bitacoraService = require('../services/bitacora.service');
 
 // POST /api/bitacora - Protegido por Token y restringido a rol 'Estudiante'
@@ -25,6 +28,29 @@ router.post(
             return res.status(status).json({
                 error: error.message || 'Error interno del servidor.'
             });
+        }
+    }
+);
+
+// PATCH /api/bitacora/:id/estado - Mutación de la máquina de estado
+router.patch(
+    '/:id/estado',
+    verificarToken,
+    requerirRol(['Estudiante', 'Empresa']),
+    validateSchema(actualizarEstadoBitacoraSchema),
+    async (req, res) => {
+        try {
+            const idRegistro = req.params.id;
+            const { nuevo_estado } = req.body;
+            const resultado = await bitacoraService.avanzarEstado(idRegistro, nuevo_estado, req.user);
+
+            return res.status(200).json({
+                mensaje: `Registro avanzado exitosamente al estado: ${nuevo_estado}`,
+                data: resultado
+            });
+        } catch (error) {
+            const status = error.statusCode || 500;
+            return res.status(status).json({ error: error.message || 'Error interno.' });
         }
     }
 );
