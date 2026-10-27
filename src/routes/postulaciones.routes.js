@@ -5,6 +5,22 @@ const { verificarToken, requerirRol } = require('../middlewares/auth.middleware'
 const { crearPostulacionSchema, actualizarEstadoSchema } = require('../middlewares/schemas/postulaciones.schema');
 const postulacionesService = require('../services/postulaciones.service');
 
+// GET /api/postulaciones - Listar postulaciones según el rol autenticado
+router.get(
+    '/',
+    verificarToken,
+    requerirRol(['Estudiante', 'Empresa']),
+    async (req, res) => {
+        try {
+            const listado = await postulacionesService.listar(req.user);
+            return res.status(200).json({ data: listado });
+        } catch (error) {
+            const status = error.statusCode || 500;
+            return res.status(status).json({ error: error.message || 'Error al obtener las postulaciones.' });
+        }
+    }
+);
+
 // POST /api/postulaciones - Estudiante se postula a una oferta
 router.post(
     '/',

@@ -84,6 +84,36 @@ class BitacoraStore {
         if (error) throw new Error(error.message);
         return data;
     }
+
+    async listarHistorial(idUsuario, rol) {
+        let query = supabase
+            .from('bitacora_horas')
+            .select(`
+                id,
+                fecha,
+                horas_invertidas,
+                descripcion,
+                estado,
+                creado_en,
+                postulaciones!inner (
+                    id_estudiante,
+                    ofertas_pasantias!inner ( id_empresa, titulo )
+                )
+            `)
+            .order('fecha', { ascending: false });
+
+        if (rol === 'Estudiante') {
+            query = query.eq('postulaciones.id_estudiante', idUsuario);
+        } else if (rol === 'Empresa') {
+            query = query.eq('postulaciones.ofertas_pasantias.id_empresa', idUsuario);
+        } else {
+            throw new Error('Rol no autorizado para visualizar bitácoras.');
+        }
+
+        const { data, error } = await query;
+        if (error) throw new Error(error.message);
+        return data;
+    }
 }
 
 module.exports = new BitacoraStore();

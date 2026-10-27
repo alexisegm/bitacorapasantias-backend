@@ -90,6 +90,12 @@ class BitacoraService {
 
         return BitacoraMapper.toApiContract(registroActualizado, horasAcumuladas);
     }
+
+    async obtenerHistorial(usuarioAutenticado) {
+        const { id, rol } = usuarioAutenticado;
+        const registros = await bitacoraStore.listarHistorial(id, rol);
+        return BitacoraMapper.toListApiContract(registros);
+    }
 }
 
 module.exports = new BitacoraService();

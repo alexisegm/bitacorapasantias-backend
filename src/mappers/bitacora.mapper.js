@@ -7,6 +7,18 @@ class BitacoraMapper {
             total_horas_acumuladas: totalAcumulado
         };
     }
+
+    static toListApiContract(registrosDb) {
+        return registrosDb.map(registro => ({
+            id_registro: registro.id,
+            fecha: registro.fecha,
+            horas: Number(registro.horas_invertidas),
+            descripcion: registro.descripcion,
+            estado: registro.estado,
+            oferta: registro.postulaciones.ofertas_pasantias.titulo,
+            fecha_registro: registro.creado_en
+        }));
+    }
 }
 
 module.exports = BitacoraMapper;

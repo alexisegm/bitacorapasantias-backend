@@ -57,6 +57,12 @@ class PostulacionesService {
         
         return PostulacionesMapper.toApiContract(postulacionActualizada);
     }
+
+            async listar(usuarioAutenticado) {
+                const { id, rol } = usuarioAutenticado;
+                const postulaciones = await postulacionesStore.listarPorUsuario(id, rol);
+                return PostulacionesMapper.toListApiContract(postulaciones);
+            }
 }
 
 module.exports = new PostulacionesService();

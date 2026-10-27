@@ -87,6 +87,31 @@ Respuesta mock `201 Created`:
 
 ## Postulaciones
 
+### Listar postulaciones
+
+`GET /api/postulaciones`
+
+Roles permitidos: `Estudiante` y `Empresa`. No requiere body. El estudiante recibe únicamente sus postulaciones; la empresa, únicamente las asociadas a sus ofertas. Los resultados se ordenan de más recientes a más antiguos.
+
+Respuesta mock `200 OK`:
+
+```json
+{
+  "data": [
+    {
+      "id_postulacion": "22222222-2222-4222-8222-222222222222",
+      "id_estudiante": "44444444-4444-4444-8444-444444444444",
+      "id_oferta": "11111111-1111-4111-8111-111111111111",
+      "titulo_oferta": "Desarrollador Junior React/Node",
+      "estado_actual": "Enviada",
+      "fecha_registro": "2026-10-13T10:30:00.000Z"
+    }
+  ]
+}
+```
+
+Si no hay resultados para el usuario autenticado, responde `200` con `{"data":[]}`. El backend real requiere un token válido y un perfil cuyo rol sea uno de los permitidos.
+
 ### Postularse a una oferta
 
 `POST /api/postulaciones`

@@ -32,6 +32,22 @@ router.post(
     }
 );
 
+// GET /api/bitacora - Obtener historial por rol
+router.get(
+    '/',
+    verificarToken,
+    requerirRol(['Estudiante', 'Empresa']),
+    async (req, res) => {
+        try {
+            const historial = await bitacoraService.obtenerHistorial(req.user);
+            return res.status(200).json({ data: historial });
+        } catch (error) {
+            const status = error.statusCode || 500;
+            return res.status(status).json({ error: error.message || 'Error al obtener el historial.' });
+        }
+    }
+);
+
 // PATCH /api/bitacora/:id/estado - Mutación de la máquina de estado
 router.patch(
     '/:id/estado',
