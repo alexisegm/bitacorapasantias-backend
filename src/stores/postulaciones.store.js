@@ -7,8 +7,9 @@ class PostulacionesStore {
             .select('id')
             .eq('id_estudiante', id_estudiante)
             .eq('id_oferta', id_oferta)
-            .single();
+            .maybeSingle();
         
+        if (error) throw new Error(error.message);
         return !!data; // Retorna true si ya existe
     }
 
@@ -34,12 +35,12 @@ class PostulacionesStore {
             .select(`
                 id,
                 estado,
-                ofertas_pasantias ( id_empresa )
+                ofertas_pasantias!inner ( id_empresa )
             `)
             .eq('id', id_postulacion)
-            .single();
+            .maybeSingle();
 
-        if (error || !data) return null;
+        if (error) throw new Error(error.message);
         return data;
     }
 

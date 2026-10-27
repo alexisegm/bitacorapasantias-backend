@@ -8,8 +8,7 @@ if (!supabaseUrl || !supabaseKey) {
     throw new Error('Faltan las credenciales de Supabase en el archivo .env');
 }
 
-// Usamos la Service Role Key para que el Backend tenga permisos absolutos.
-// Las validaciones de RLS se manejarán asegurando que pasemos el ID del usuario en las consultas.
+// Esta clave omite RLS: las consultas con datos privados deben aplicar sus propios filtros de autorización.
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 module.exports = supabase;

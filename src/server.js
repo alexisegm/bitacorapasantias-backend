@@ -10,7 +10,28 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares globales
 app.use(helmet()); // Seguridad HTTP
-app.use(cors()); // Permitir peticiones del frontend
+const origenesConfigurados = process.env.CORS_ORIGINS;
+if (process.env.NODE_ENV === 'production' && !origenesConfigurados) {
+    throw new Error('CORS_ORIGINS debe configurarse en producción.');
+}
+
+const dominiosPermitidos = (origenesConfigurados || 'http://localhost:5173,http://localhost:3000')
+    .split(',')
+    .map(origen => origen.trim())
+    .filter(Boolean);
+
+const opcionesCors = {
+    origin: (origin, callback) => {
+        if (!origin || dominiosPermitidos.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new AppError('Bloqueado por CORS: Dominio no autorizado', 403));
+        }
+    },
+    credentials: true
+};
+
+app.use(cors(opcionesCors));
 app.use(express.json()); // Parsear JSON estricto
 
 // Importar rutas

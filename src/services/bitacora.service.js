@@ -1,5 +1,6 @@
 const bitacoraStore = require('../stores/bitacora.store');
 const BitacoraMapper = require('../mappers/bitacora.mapper');
+const AppError = require('../utils/AppError');
 
 class BitacoraService {
     static TRANSICIONES_VALIDAS = {
@@ -14,31 +15,23 @@ class BitacoraService {
         const detallesPostulacion = await bitacoraStore.obtenerDetallesPostulacion(datos.id_postulacion);
         
         if (!detallesPostulacion) {
-            const error = new Error('Postulación no encontrada.');
-            error.statusCode = 404;
-            throw error;
+            throw new AppError('Postulación no encontrada.', 404);
         }
 
         if (detallesPostulacion.id_estudiante !== idAutenticado) {
-            const error = new Error('Operación denegada. Esta postulación no te pertenece.');
-            error.statusCode = 403; // Forbidden
-            throw error;
+            throw new AppError('Operación denegada. Esta postulación no te pertenece.', 403);
         }
 
         const estadoPostulacion = detallesPostulacion.estado;
         
         if (estadoPostulacion !== 'Seleccionado') {
-            const error = new Error('Operación denegada. La postulación no está en estado "Seleccionado".');
-            error.statusCode = 403;
-            throw error;
+            throw new AppError('Operación denegada. La postulación no está en estado "Seleccionado".', 403);
         }
 
         // Evitar registros duplicados para la misma fecha.
         const existeRegistro = await bitacoraStore.verificarRegistroExistente(datos.id_postulacion, datos.fecha);
         if (existeRegistro) {
-            const error = new Error('Ya existe un registro para esta fecha.');
-            error.statusCode = 400;
-            throw error;
+            throw new AppError('Ya existe un registro para esta fecha.', 400);
         }
 
         // Ejecutar creación
@@ -55,17 +48,7 @@ class BitacoraService {
         const registro = await bitacoraStore.obtenerDetallesRegistro(idRegistro);
 
         if (!registro) {
-            const error = new Error('Registro de bitácora no encontrado.');
-            error.statusCode = 404;
-            throw error;
-        }
-
-        const estadoActual = registro.estado;
-        const transicionesPermitidas = BitacoraService.TRANSICIONES_VALIDAS[estadoActual];
-        if (!transicionesPermitidas || !transicionesPermitidas.includes(nuevoEstado)) {
-            const error = new Error(`Transición ilegal en máquina de estado de bitácora. No se puede pasar de [${estadoActual}] a [${nuevoEstado}].`);
-            error.statusCode = 400;
-            throw error;
+            throw new AppError('Registro de bitácora no encontrado.', 404);
         }
 
         const idEstudiante = registro.postulaciones.id_estudiante;
@@ -73,16 +56,21 @@ class BitacoraService {
 
         if (nuevoEstado === 'Pendiente_De_Aprobación') {
             if (usuarioAutenticado.rol !== 'Estudiante' || usuarioAutenticado.id !== idEstudiante) {
-                const error = new Error('Operación denegada. Solo el estudiante titular puede enviar horas a revisión.');
-                error.statusCode = 403;
-                throw error;
+                throw new AppError('Operación denegada. Solo el estudiante titular puede enviar horas a revisión.', 403);
             }
         } else if (nuevoEstado === 'Horas_Aprobadas' || nuevoEstado === 'Horas_Rechazadas') {
             if (usuarioAutenticado.rol !== 'Empresa' || usuarioAutenticado.id !== idEmpresa) {
-                const error = new Error('Operación denegada. Solo la empresa tutora puede aprobar o rechazar horas.');
-                error.statusCode = 403;
-                throw error;
+                throw new AppError('Operación denegada. Solo la empresa tutora puede aprobar o rechazar horas.', 403);
             }
+        }
+
+        const estadoActual = registro.estado;
+        const transicionesPermitidas = BitacoraService.TRANSICIONES_VALIDAS[estadoActual];
+        if (!transicionesPermitidas || !transicionesPermitidas.includes(nuevoEstado)) {
+            throw new AppError(
+                `Transición ilegal en máquina de estado de bitácora. No se puede pasar de [${estadoActual}] a [${nuevoEstado}].`,
+                400
+            );
         }
 
         const registroActualizado = await bitacoraStore.actualizarEstado(idRegistro, nuevoEstado);
@@ -93,6 +81,10 @@ class BitacoraService {
 
     async obtenerHistorial(usuarioAutenticado) {
         const { id, rol } = usuarioAutenticado;
+        if (!['Estudiante', 'Empresa'].includes(rol)) {
+            throw new AppError('Rol no autorizado para visualizar bitácoras.', 403);
+        }
+
         const registros = await bitacoraStore.listarHistorial(id, rol);
         return BitacoraMapper.toListApiContract(registros);
     }

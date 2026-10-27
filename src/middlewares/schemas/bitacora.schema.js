@@ -2,7 +2,7 @@ const { z } = require('zod');
 
 const crearRegistroBitacoraSchema = z.object({
     id_postulacion: z.string().uuid({ message: "El ID de postulación debe ser un UUID válido." }),
-    fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "El formato de fecha debe ser YYYY-MM-DD." }),
+    fecha: z.iso.date({ error: "La fecha debe ser válida y usar el formato YYYY-MM-DD." }),
     horas_invertidas: z.number()
         .positive({ message: "Las horas deben ser mayores a 0." })
         .max(8, { message: "Regla de Negocio: No puedes registrar más de 8 horas en un solo día." }),

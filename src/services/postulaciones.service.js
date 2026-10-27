@@ -1,5 +1,6 @@
 const postulacionesStore = require('../stores/postulaciones.store');
 const PostulacionesMapper = require('../mappers/postulaciones.mapper');
+const AppError = require('../utils/AppError');
 
 class PostulacionesService {
     // Definimos las transiciones legales de la Máquina de Estado
@@ -16,9 +17,7 @@ class PostulacionesService {
         // Regla 1: Un estudiante no puede postularse dos veces a la misma oferta
         const existe = await postulacionesStore.verificarPostulacionPrevia(idEstudiante, datos.id_oferta);
         if (existe) {
-            const error = new Error('Ya te has postulado previamente a esta oferta.');
-            error.statusCode = 400;
-            throw error;
+            throw new AppError('Ya te has postulado previamente a esta oferta.', 400);
         }
 
         const nuevaPostulacion = await postulacionesStore.crearPostulacion(idEstudiante, datos.id_oferta);
@@ -29,16 +28,12 @@ class PostulacionesService {
         const postulacion = await postulacionesStore.obtenerDetallesPostulacion(idPostulacion);
         
         if (!postulacion) {
-            const error = new Error('Postulación no encontrada.');
-            error.statusCode = 404;
-            throw error;
+            throw new AppError('Postulación no encontrada.', 404);
         }
 
         // Seguridad: Verificar que la oferta pertenece a la empresa que intenta mutar el estado
         if (postulacion.ofertas_pasantias.id_empresa !== idEmpresa) {
-            const error = new Error('Operación denegada. No eres el propietario de esta oferta.');
-            error.statusCode = 403;
-            throw error;
+            throw new AppError('Operación denegada. No eres el propietario de esta oferta.', 403);
         }
 
         const estadoActual = postulacion.estado;
@@ -46,10 +41,11 @@ class PostulacionesService {
         // Validar Máquina de Estado
         const transicionesPermitidas = PostulacionesService.TRANSICIONES_VALIDAS[estadoActual];
         
-        if (!transicionesPermitidas.includes(nuevoEstado)) {
-            const error = new Error(`Transición ilegal en máquina de estado. No se puede pasar de [${estadoActual}] a [${nuevoEstado}].`);
-            error.statusCode = 400;
-            throw error;
+        if (!transicionesPermitidas || !transicionesPermitidas.includes(nuevoEstado)) {
+            throw new AppError(
+                `Transición ilegal en máquina de estado. No se puede pasar de [${estadoActual}] a [${nuevoEstado}].`,
+                400
+            );
         }
 
         // Si la validación pasa, ejecutamos la mutación
@@ -60,6 +56,10 @@ class PostulacionesService {
 
             async listar(usuarioAutenticado) {
                 const { id, rol } = usuarioAutenticado;
+                if (!['Estudiante', 'Empresa'].includes(rol)) {
+                    throw new AppError('Rol no autorizado para visualizar postulaciones.', 403);
+                }
+
                 const postulaciones = await postulacionesStore.listarPorUsuario(id, rol);
                 return PostulacionesMapper.toListApiContract(postulaciones);
             }

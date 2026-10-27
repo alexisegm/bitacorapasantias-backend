@@ -2,6 +2,19 @@
 
 Este documento permite desarrollar pantallas y flujos con datos simulados antes de conectar el frontend con Supabase. Los ejemplos de respuesta son fixtures: en modo mock, el frontend debe devolverlos desde su servicio simulado sin llamar a este backend.
 
+Documentación complementaria: [Contrato de API](docs/contrato_api.md), [Arquitectura](docs/arquitectura.md), [Máquinas de estado](docs/maquinas_de_estado.md) y [Seguridad](docs/seguridad.md).
+
+## Ejecutar localmente
+
+Requisitos: Node.js y credenciales de un proyecto Supabase de desarrollo.
+
+1. Instalar dependencias con `npm install`.
+2. Crear `.env` con `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `PORT` (opcional), `NODE_ENV` y `CORS_ORIGINS`.
+3. Iniciar el servidor en desarrollo con `npm run dev`; para ejecutar el proceso de producción, usar `npm start` con `NODE_ENV=production`.
+4. Confirmar que responde en `GET http://localhost:3000/api/health`.
+
+No compartan `.env` ni expongan `SUPABASE_SERVICE_ROLE_KEY` al frontend. El proyecto no define actualmente un script `npm test`; las validaciones disponibles deben ejecutarse por archivo o añadirse al configurar una suite.
+
 ## Inicio con mocks
 
 - Base URL local del backend: `http://localhost:3000`.
@@ -52,6 +65,22 @@ const { data, error } = await supabase.auth.signUp({
 El trigger crea el perfil; no intenten insertar una segunda fila en `perfiles` desde el frontend. Para llamar a las rutas protegidas, usen el `access_token` de la sesión cuando Supabase la entregue. Si el proyecto requiere confirmar el correo, la sesión podría no estar disponible hasta completar esa confirmación.
 
 **Seguridad del rol:** `options.data` proviene del cliente y el usuario puede manipularla. El trigger actual copia `rol` directamente a `perfiles`, por lo que no se debe confiar en ese valor para conceder roles privilegiados como `Empresa` o `Institucion` mediante autorregistro abierto. Para producción, asignen un rol inicial seguro (por ejemplo, `Estudiante`) o validen/asignen los roles privilegiados mediante un flujo confiable del servidor o de administración. Los valores del enum también deben coincidir con los nombres de rol que valida la API.
+
+### Configuración del servidor
+
+El backend carga estas variables desde `.env`:
+
+```dotenv
+PORT=3000
+NODE_ENV=development
+SUPABASE_URL=https://<PROJECT_REF>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<SECRET_SERVER_SIDE>
+CORS_ORIGINS=http://localhost:5173
+```
+
+`CORS_ORIGINS` acepta una lista separada por comas de orígenes completos, por ejemplo `https://frontend.example.com,http://localhost:5173`. En desarrollo, si no se define, el servidor permite los orígenes locales `http://localhost:5173` y `http://localhost:3000`; en producción es obligatorio configurarlo y el proceso no iniciará si falta. CORS restringe el acceso desde navegadores; no sustituye la autenticación y no impide llamadas directas con cURL o Postman. Las solicitudes sin header `Origin` se permiten para herramientas de línea de comandos.
+
+No compartan ni incluyan `SUPABASE_SERVICE_ROLE_KEY` en el frontend, el repositorio ni los logs. `.env` está excluido por `.gitignore`.
 
 ## Ofertas
 
@@ -310,6 +339,6 @@ En modo mock pueden simular estas respuestas sin que exista el registro en Supab
 
 Para probar la API real se necesitan un access token válido, un perfil con el rol requerido y los registros relacionados en Supabase. Las respuestas mock de este documento permiten avanzar en la UI sin esos datos; no sustituyen esas precondiciones al integrar el backend.
 
-Pendiente de corregir antes de validar una transición exitosa contra Supabase: `avanzarEstado` usa `registro.postulaciones.id` para recalcular el total después de actualizar el estado, pero `obtenerDetallesRegistro` aún no selecciona ese campo. La actualización podría persistir y luego fallar al calcular el total; este problema no afecta las pruebas con mocks.
+Los errores de payload inválido responden `400` con `error` y `detalles`. Los errores operacionales se procesan con el manejador global: en producción devuelven `status` y `message`; los errores no operacionales se responden con un mensaje genérico `500`. En desarrollo se incluye información de depuración, por lo que no se debe ejecutar con `NODE_ENV=development` en producción.
 
-Nota de validación: el middleware actual formatea errores de Zod usando `error.errors`. Verifiquen esa respuesta con la versión instalada de Zod antes de depender del contenido exacto de `detalles` en errores de payload.
+Riesgo pendiente: el cambio de estado de bitácora actualiza primero la fila y luego calcula el total. Si el cálculo falla después de la actualización, la API puede responder `500` aunque el cambio de estado haya quedado persistido. Para garantizar atomicidad, hace falta trasladar ambas operaciones a una función transaccional de PostgreSQL/RPC.

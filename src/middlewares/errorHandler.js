@@ -1,7 +1,6 @@
-const AppError = require('../utils/AppError');
-
 const errorHandler = (err, req, res, next) => {
-    err.statusCode = err.statusCode || 500;
+    const statusCode = Number(err.statusCode ?? err.status) || 500;
+    err.statusCode = statusCode;
     err.status = err.status || 'error';
 
     // Si estamos en desarrollo, enviamos el stack trace para depurar en VS Code
@@ -17,7 +16,7 @@ const errorHandler = (err, req, res, next) => {
     }
 
     // Si estamos en producción, ocultamos el stack trace al frontend
-    if (err.isOperational) {
+    if (err.isOperational || (statusCode >= 400 && statusCode < 500)) {
         // Errores controlados (Reglas de negocio, 404, 403, etc.)
         return res.status(err.statusCode).json({
             status: err.status,

@@ -6,9 +6,9 @@ class BitacoraStore {
             .from('postulaciones')
             .select('estado, id_estudiante')
             .eq('id', id_postulacion)
-            .single();
+            .maybeSingle();
         
-        if (error) return null;
+        if (error) throw new Error(error.message);
         return data;
     }
 
@@ -18,8 +18,9 @@ class BitacoraStore {
             .select('id')
             .eq('id_postulacion', id_postulacion)
             .eq('fecha', fecha)
-            .single();
+            .maybeSingle();
         
+        if (error) throw new Error(error.message);
         return !!data;
     }
 
@@ -61,15 +62,16 @@ class BitacoraStore {
             .select(`
                 id,
                 estado,
-                postulaciones (
+                postulaciones!inner (
+                    id,
                     id_estudiante,
-                    ofertas_pasantias ( id_empresa )
+                    ofertas_pasantias!inner ( id_empresa )
                 )
             `)
             .eq('id', id_registro)
-            .single();
+            .maybeSingle();
         
-        if (error || !data) return null;
+        if (error) throw new Error(error.message);
         return data;
     }
 
