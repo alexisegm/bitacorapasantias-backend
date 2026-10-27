@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const errorHandler = require('./middlewares/errorHandler');
+const AppError = require('./utils/AppError');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,8 +30,11 @@ app.get('/api/health', (req, res) => {
 
 // Middleware para rutas no encontradas (404)
 app.use((req, res, next) => {
-    res.status(404).json({ error: 'Ruta no encontrada. Verifica el Contrato de API.' });
+    next(new AppError(`No se puede encontrar la ruta ${req.originalUrl} en el servidor.`, 404));
 });
+
+// Middleware global de errores (debe ser el último middleware)
+app.use(errorHandler);
 
 // Iniciar servidor
 app.listen(PORT, () => {
