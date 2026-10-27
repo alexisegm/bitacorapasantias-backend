@@ -25,6 +25,34 @@ Content-Type: application/json
 
 Los roles se leen desde `perfiles.rol`. Los nombres son sensibles a mayúsculas y deben coincidir exactamente con los indicados en cada endpoint.
 
+### Registro y creación automática del perfil
+
+Al registrarse un usuario con Supabase Auth, un trigger de PostgreSQL escucha la inserción en `auth.users` y crea automáticamente su fila en `public.perfiles`, usando el mismo UUID del usuario. El trigger toma estos valores de `raw_user_meta_data`:
+
+- `rol`, convertido al tipo enum `rol_usuario`.
+- `nombre_completo`.
+- `documento_identidad`.
+
+Por tanto, el frontend debe enviar esa metadata durante el registro. Ejemplo con Supabase JS:
+
+```js
+const { data, error } = await supabase.auth.signUp({
+  email: 'ana@example.com',
+  password: 'una-clave-segura',
+  options: {
+    data: {
+      rol: 'Estudiante',
+      nombre_completo: 'Ana Pérez',
+      documento_identidad: 'ID-DE-PRUEBA'
+    }
+  }
+});
+```
+
+El trigger crea el perfil; no intenten insertar una segunda fila en `perfiles` desde el frontend. Para llamar a las rutas protegidas, usen el `access_token` de la sesión cuando Supabase la entregue. Si el proyecto requiere confirmar el correo, la sesión podría no estar disponible hasta completar esa confirmación.
+
+**Seguridad del rol:** `options.data` proviene del cliente y el usuario puede manipularla. El trigger actual copia `rol` directamente a `perfiles`, por lo que no se debe confiar en ese valor para conceder roles privilegiados como `Empresa` o `Institucion` mediante autorregistro abierto. Para producción, asignen un rol inicial seguro (por ejemplo, `Estudiante`) o validen/asignen los roles privilegiados mediante un flujo confiable del servidor o de administración. Los valores del enum también deben coincidir con los nombres de rol que valida la API.
+
 ## Ofertas
 
 ### Listar ofertas
