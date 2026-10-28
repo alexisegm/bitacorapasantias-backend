@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_dashboard" name="shell-type"/>
+<title>PraxisTrack - Marketplace de Pasantías</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #140A0D;
+        color: #F9DBDF;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#140A0D",
+            "surface-dim": "#180D11",
+            "surface-container-lowest": "#12080B",
+            "surface-container-low": "#1C0E13",
+            "surface-container": "#241217",
+            "surface-container-high": "#2D171E",
+            "surface-container-highest": "#3A1E27",
+            "on-surface": "#F9DBDF",
+            "on-surface-variant": "#D0B2B7",
+            "outline": "#4D2530",
+            "outline-variant": "#381923",
+            "primary": "#F99F28",
+            "primary-container": "#F99F28",
+            "on-primary": "#2D1600",
+            "on-primary-container": "#1E0E00",
+            "secondary": "#FFA089",
+            "secondary-container": "#481B24",
+            "tertiary": "#FEC294",
+            "amber-gold": "#F99F28",
+            "wine-glow": "#782338",
+            "success": "#34D399",
+            "error": "#FF8A80"
+          },
+          fontFamily: {
+            sans: ["Plus Jakarta Sans", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          },
+          boxShadow: {
+            'glow-amber': '0 0 25px -4px rgba(249, 159, 40, 0.25)',
+            'glow-card': '0 4px 20px -2px rgba(18, 5, 8, 0.7), 0 0 0 1px rgba(77, 37, 48, 0.45)',
+            'glow-card-hover': '0 10px 30px -4px rgba(249, 159, 40, 0.15), 0 0 0 1px rgba(249, 159, 40, 0.4)'
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-surface font-sans text-on-surface antialiased min-h-screen selection:bg-amber-gold selection:text-black">
+<!-- Subtle ambient background glow -->
+<div class="fixed top-0 left-1/4 w-96 h-96 bg-wine-glow/20 rounded-full blur-[140px] pointer-events-none -z-10"></div>
+<div class="fixed top-20 right-10 w-80 h-80 bg-amber-gold/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+<!-- Ultra-Clean, Non-Redundant Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-[#160B0E]/90 backdrop-blur-xl border-b border-outline-variant/60 shadow-lg">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+<!-- Brand & Academic Tag -->
+<div class="flex items-center gap-3 shrink-0">
+<div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-surface-container-high border border-outline/50 shadow-inner group">
+<img alt="PraxisTrack Logo" class="h-6 w-auto object-contain transition-transform group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlTeumjZPuNXUhiAGRpjl_xO6fhf61PAc1bganhtOtYpM2E3Hk9uKsH2JX_ya5YSlTUsurEDgbeuwiADb2kAu-xNdm5rMlYvtQm7-Mx37wtPYJRhREd8-z7q0Y9MXHXi627s-imO1C8TFQLjQRz7zTNfJycjbFK0PCTEDTs8xzUpavGyBXfdjr-RBatOjSwxNYHbWuT51XTcp2eXfC-GyeDqo5-D0s5jy-rLqKlnNfuGMFx4bwQY6l"/>
+<span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-gold ring-2 ring-surface animate-pulse"></span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-lg tracking-tight text-white">Praxis<span class="text-amber-gold">Track</span></span>
+<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-gold/15 text-amber-gold font-semibold uppercase tracking-wider border border-amber-gold/30">v2.4</span>
+</div>
+<span class="text-[11px] font-medium text-on-surface-variant/80 -mt-0.5">Facultad de Ingeniería • 2025-I</span>
+</div>
+</div>
+<!-- Main Navigation Tabs (Clean, Student-First, No Redundant Sidebar) -->
+<nav class="hidden md:flex items-center gap-1 bg-surface-container-low/70 border border-outline-variant/60 p-1 rounded-xl">
+<a class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-semibold bg-amber-gold text-on-primary shadow-sm transition-all" data-path="marketplace-de-pasantias" href="#">
+<span class="material-symbols-outlined text-[18px]">explore</span>
+<span>Marketplace</span>
+</a>
+<a class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-white hover:bg-surface-container transition-all" data-path="mi-bitacora-de-horas" href="#">
+<span class="material-symbols-outlined text-[18px]">history_edu</span>
+<span>Mi Bitácora</span>
+</a>
+<a class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-white hover:bg-surface-container transition-all" data-path="mis-postulaciones" href="#">
+<span class="material-symbols-outlined text-[18px]">send_and_archive</span>
+<span>Postulaciones</span>
+<span class="w-1.5 h-1.5 rounded-full bg-amber-gold ml-0.5"></span>
+</a>
+<a class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-white hover:bg-surface-container transition-all" data-path="evaluaciones-de-tutor" href="#">
+<span class="material-symbols-outlined text-[18px]">rate_review</span>
+<span>Evaluaciones</span>
+</a>
+</nav>
+<!-- Right Header Elements: Progress Capsule + Alerts + Profile Popover Trigger -->
+<div class="flex items-center gap-3">
+<!-- Live Academic Hours Capsule -->
+<a class="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-surface-container-low border border-outline/50 hover:border-amber-gold/50 transition-all group" href="#">
+<div class="flex flex-col text-right">
+<span class="text-[10px] font-mono text-on-surface-variant/80 uppercase tracking-wider leading-none">Horas Totales</span>
+<span class="text-xs font-mono font-bold text-white group-hover:text-amber-gold transition-colors leading-tight">340 <span class="text-on-surface-variant/60 font-normal">/ 480h</span></span>
+</div>
+<div class="relative w-7 h-7 flex items-center justify-center">
+<svg class="w-7 h-7 transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container-highest" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-amber-gold" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="71, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<span class="absolute text-[8px] font-bold text-amber-gold font-mono">71%</span>
+</div>
+</a>
+<!-- Notifications Bell -->
+<button aria-label="Alertas y Notificaciones" class="relative p-2 text-on-surface-variant hover:text-white bg-surface-container-low hover:bg-surface-container rounded-xl border border-outline-variant/60 transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px] block">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-gold ring-2 ring-[#160B0E]"></span>
+</button>
+<!-- Student Profile Button & Integrated Settings Context -->
+<div class="relative group">
+<button aria-haspopup="true" class="flex items-center gap-2.5 p-1 pl-1.5 pr-2.5 rounded-xl bg-surface-container-low hover:bg-surface-container border border-outline-variant/60 hover:border-outline transition-all" type="button">
+<img alt="Mateo Valenzuela" class="w-7 h-7 rounded-lg object-cover ring-1 ring-amber-gold/40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBj6D4-S2-iMOmkh3ebLmjJ33Gs_MykXVmFvso4kVTdCgBFo_Ye50ljrawZa3HKamqeFiGtOPQe58u4h3ZoP0YQVYBhW_CfCtIr7CrYxHRgAoxhpyFqZUMneAogBqufIhAEIj4bSYSGnwA9k8aqk_UCPGWuGf4zB2PWmLX-5fRAOLDgqKjznjXt2Hj1-MqGMtK8Z3efggB2bfNoq1quO0uID_LEi9ffrfzyaGDcnT5wpPwGmNKO4-R"/>
+<div class="hidden lg:flex flex-col text-left">
+<span class="text-xs font-semibold text-white leading-tight">Mateo V.</span>
+<span class="text-[10px] text-amber-gold/90 font-mono font-medium leading-none">Semestre IX</span>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant hidden lg:block">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Full-Width Workspace Container -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<!-- Hero / Operational Search & Discovery Ribbon -->
+<section class="mb-7">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+<div>
+<h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
+            Marketplace de Pasantías
+            <span class="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-amber-gold/15 text-amber-gold border border-amber-gold/30">
+              Convocatorias 2025
+            </span>
+</h1>
+<p class="text-sm text-on-surface-variant mt-1">
+            Vacantes pre-aprobadas y auditadas para acreditación directa en tu plan curricular.
+          </p>
+</div>
+<!-- Quick Status Pill & CV Action -->
+<div class="flex items-center gap-2.5 self-start md:self-auto">
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-container border border-outline-variant/60 text-xs font-mono text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+<span>ID: <strong class="text-white">PX-9482-TL</strong></span>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-outline/50 text-xs font-semibold text-white transition-all">
+<span class="material-symbols-outlined text-[16px] text-amber-gold">description</span>
+<span>CV Académico</span>
+</button>
+</div>
+</div>
+<!-- Modern Search & Filter Command Bar -->
+<div class="p-3 bg-surface-container-low/90 border border-outline-variant/80 rounded-2xl shadow-glow-card backdrop-blur-md">
+<div class="flex flex-col lg:flex-row lg:items-center gap-3">
+<!-- Search Input with Keyboard Shortcut badge -->
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">search</span>
+<input class="w-full h-11 pl-11 pr-20 bg-surface-container/90 border border-outline/60 focus:border-amber-gold focus:ring-1 focus:ring-amber-gold rounded-xl text-sm text-white placeholder:text-on-surface-variant/60 transition-all" id="internshipSearch" placeholder="Buscar por rol, stack (Go, PostgreSQL, Docker), empresa o modalidad..." type="text"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 text-[11px] font-mono bg-surface-container-highest px-2 py-0.5 rounded text-on-surface-variant pointer-events-none border border-outline-variant/40">
+<span>⌘K</span>
+</div>
+</div>
+<!-- Quick Filter Tags -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0" id="quickFilterPills">
+<button class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-gold text-on-primary transition-all flex items-center gap-1.5 shrink-0" data-filter="all" type="button">
+<span>Todos</span>
+<span class="bg-black/20 text-on-primary px-1.5 py-0.2 rounded-full text-[10px] font-mono">6</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-container text-on-surface-variant hover:text-white hover:bg-surface-container-high border border-outline-variant/50 transition-all shrink-0" data-filter="backend" type="button">
+              Backend
+            </button>
+<button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-container text-on-surface-variant hover:text-white hover:bg-surface-container-high border border-outline-variant/50 transition-all shrink-0" data-filter="fullstack" type="button">
+              Fullstack
+            </button>
+<button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-container text-on-surface-variant hover:text-white hover:bg-surface-container-high border border-outline-variant/50 transition-all shrink-0" data-filter="remoto" type="button">
+              Remoto
+            </button>
+<button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-container text-on-surface-variant hover:text-white hover:bg-surface-container-high border border-outline-variant/50 transition-all shrink-0 flex items-center gap-1" data-filter="convenio" type="button">
+<span class="material-symbols-outlined text-[14px] text-amber-gold">verified</span>
+<span>Convenio Activo</span>
+</button>
+</div>
+<!-- Sort Select -->
+<div class="flex items-center gap-2 pl-1 shrink-0">
+<select class="bg-surface-container border border-outline-variant/60 text-xs font-medium text-white px-3 py-2 rounded-xl focus:border-amber-gold focus:ring-0 cursor-pointer">
+<option>Mayor Match Score</option>
+<option>Más Horas Acreditadas</option>
+<option>Cierre Próximo</option>
+<option>Mayor Estipendio</option>
+</select>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Grid: Opportunities Stream (8 cols) + Companion Hub (4 cols) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+<!-- LEFT: Fresh, Scannable Internship Cards (8 cols on XL) -->
+<section class="xl:col-span-8 flex flex-col gap-4">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-semibold text-white">Oportunidades Disponibles</span>
+<span class="w-1.5 h-1.5 rounded-full bg-amber-gold"></span>
+<span class="text-xs font-mono text-on-surface-variant">4 convenios destacados</span>
+</div>
+<span class="text-xs text-on-surface-variant">Actualizado hace 2 horas</span>
+</div>
+<!-- 2-Column Responsive Card Matrix -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="cardsGrid">
+<!-- CARD 1: Go / Backend -->
+<article class="bg-surface-container-low/95 hover:bg-surface-container border border-outline/60 hover:border-amber-gold/50 rounded-2xl p-5 shadow-glow-card hover:shadow-glow-card-hover transition-all flex flex-col justify-between group relative overflow-hidden">
+<!-- Subtle accent top gradient line -->
+<div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-gold/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div>
+<!-- Header: Company & Match Badge -->
+<div class="flex items-start justify-between gap-3 mb-3">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-surface-container-high border border-outline/50 flex items-center justify-center overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="NuvoMetrics logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2u_3ZSWT4g3d6syC9WqoKTXlww9JI6YSS3J6hxEDYZ3T953C-2D9xlLhH8zHwCxMBPyoPHE3ZuyMHR-EXLmyOSMeHalXXR0CqnN9LlAIXOeHMnkOgR0TuLfdB2gs6kcalZXuLak760IU546h-cdADCaqVznZ6lSJ0kZaEO0y55Pce8Plb9K0FslDfy9KMqQnRw5NK_JdE7M_FuKeUPLWvEcrsnzbrbKTwX9zu6AJ_jmOSbD5Y4ATy"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h4 class="text-sm font-bold text-white group-hover:text-amber-gold transition-colors">NuvoMetrics Labs</h4>
+<span class="material-symbols-outlined text-[15px] text-amber-gold" title="Convenio Oficial Verificado">verified</span>
+</div>
+<span class="text-xs text-on-surface-variant/80 font-mono">Fintech • Core Banking</span>
+</div>
+</div>
+<div class="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-gold/20 to-orange-500/20 border border-amber-gold/40 flex items-center gap-1 text-[11px] font-mono font-bold text-amber-gold shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[13px]">bolt</span>
+<span>98% Match</span>
+</div>
+</div>
+<!-- Role Title -->
+<h3 class="text-base font-bold text-white group-hover:text-amber-gold transition-colors leading-snug mb-2">
+                Junior Backend Developer (Go / DDD)
+              </h3>
+<!-- Key Metrics Ribbon (Concise Pill Badges) -->
+<div class="flex flex-wrap items-center gap-1.5 mb-3 text-xs">
+<span class="px-2.5 py-1 rounded-md bg-surface-container-high border border-outline-variant/60 font-mono text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-amber-gold">payments</span>
+                  $750 USD/m
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-amber-gold/10 border border-amber-gold/30 font-mono font-semibold text-amber-gold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                  160 hrs
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-surface-container-high border border-outline-variant/60 text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">public</span>
+                  Remoto
+                </span>
+</div>
+<!-- Concise Tech Badges -->
+<div class="flex flex-wrap gap-1.5 mb-4">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">Golang</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">PostgreSQL</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">Docker</span>
+</div>
+</div>
+<!-- Card Bottom Bar: Deadline + Clean Button CTA -->
+<div class="pt-3 border-t border-outline-variant/50 flex items-center justify-between">
+<span class="text-[11px] font-mono text-on-surface-variant">Cierre: 18 Abr</span>
+<button class="px-3.5 py-1.5 rounded-lg bg-amber-gold hover:bg-amber-400 text-on-primary font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all group-hover:shadow-glow-amber" type="button">
+<span>Postularme</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- CARD 2: Fullstack Node/PostgreSQL (Application Submitted State) -->
+<article class="bg-surface-container-low/95 hover:bg-surface-container border border-outline/60 hover:border-amber-gold/50 rounded-2xl p-5 shadow-glow-card hover:shadow-glow-card-hover transition-all flex flex-col justify-between group relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-secondary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div>
+<div class="flex items-start justify-between gap-3 mb-3">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-surface-container-high border border-outline/50 flex items-center justify-center overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="BioCloud logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1ztTgcSqqPMo_aMwMabcviKxc3ej7Pqk1rzA8VRkkuKK7yaVOI7UdZb5oybG2sLqyfNErmEcS4l5o95szOgrlFswfvG3YPnBibtDW9vvXm2NAYDikfr8sPYMHjxxVyTyf_IzEDhM8foIJIvMQgz8V_9jOgHv1GTSngGKTsV-4B4elANlrJGOL0L4N6dR-96CJg2N3ZZXWdI1u6OWad_Zkl6Wzc05r4tA9JT9ncQDeIhNnOaCB-N4J"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h4 class="text-sm font-bold text-white group-hover:text-amber-gold transition-colors">BioCloud Systems</h4>
+<span class="material-symbols-outlined text-[15px] text-amber-gold" title="Convenio Oficial Verificado">verified</span>
+</div>
+<span class="text-xs text-on-surface-variant/80 font-mono">HealthTech • Clinical AI</span>
+</div>
+</div>
+<div class="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-gold/20 to-orange-500/20 border border-amber-gold/40 flex items-center gap-1 text-[11px] font-mono font-bold text-amber-gold shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[13px]">bolt</span>
+<span>94% Match</span>
+</div>
+</div>
+<h3 class="text-base font-bold text-white group-hover:text-amber-gold transition-colors leading-snug mb-2">
+                Fullstack React &amp; Node.js Intern
+              </h3>
+<div class="flex flex-wrap items-center gap-1.5 mb-3 text-xs">
+<span class="px-2.5 py-1 rounded-md bg-surface-container-high border border-outline-variant/60 font-mono text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-amber-gold">payments</span>
+                  $820 USD/m
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-amber-gold/10 border border-amber-gold/30 font-mono font-semibold text-amber-gold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                  180 hrs
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-surface-container-high border border-outline-variant/60 text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">apartment</span>
+                  Híbrido
+                </span>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-4">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">React 19</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">Node.js</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">PostgreSQL</span>
+</div>
+</div>
+<!-- Card Bottom Bar: Submitted State -->
+<div class="pt-3 border-t border-outline-variant/50 flex items-center justify-between">
+<span class="text-[11px] font-mono text-secondary">Enviada: 12 Mar</span>
+<span class="px-3 py-1 rounded-lg bg-secondary/15 text-secondary border border-secondary/30 font-semibold text-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">done</span>
+<span>Postulación Enviada</span>
+</span>
+</div>
+</article>
+<!-- CARD 3: Cloud & Platform Intern -->
+<article class="bg-surface-container-low/95 hover:bg-surface-container border border-outline/60 hover:border-amber-gold/50 rounded-2xl p-5 shadow-glow-card hover:shadow-glow-card-hover transition-all flex flex-col justify-between group relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-gold/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div>
+<div class="flex items-start justify-between gap-3 mb-3">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-surface-container-high border border-outline/50 flex items-center justify-center overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Aethelgard logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB53sa6U34gTbjMcqdelgnVkVF_GooMFTQmti6UDm6qVPQpWUl5qLzziCIHsxTkuHe_GULnHpeuZ2DKYWwsp6quPBX3-R1lMVcoG22IdYmd96rZyEiI-1v-nCyWfhq5sbwdlxb9oJFluzzfZZG74zPtMoqSTDFtn00UJz0xZ0MwqOBiwQLUYAroYwVV5wRBJIhu7okbv7si8vVu31ujyvTrThQhx2bmEu-Q214ATrC_ZKvKdWuxdQtr"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h4 class="text-sm font-bold text-white group-hover:text-amber-gold transition-colors">Aethelgard Cloud</h4>
+<span class="material-symbols-outlined text-[15px] text-amber-gold" title="Convenio Oficial Verificado">verified</span>
+</div>
+<span class="text-xs text-on-surface-variant/80 font-mono">Infra / DevOps</span>
+</div>
+</div>
+<div class="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-gold/20 to-orange-500/20 border border-amber-gold/40 flex items-center gap-1 text-[11px] font-mono font-bold text-amber-gold shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[13px]">bolt</span>
+<span>89% Match</span>
+</div>
+</div>
+<h3 class="text-base font-bold text-white group-hover:text-amber-gold transition-colors leading-snug mb-2">
+                Cloud &amp; SRE Platform Intern
+              </h3>
+<div class="flex flex-wrap items-center gap-1.5 mb-3 text-xs">
+<span class="px-2.5 py-1 rounded-md bg-surface-container-high border border-outline-variant/60 font-mono text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-amber-gold">payments</span>
+                  $900 USD/m
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-amber-gold/10 border border-amber-gold/30 font-mono font-semibold text-amber-gold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                  140 hrs
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-surface-container-high border border-outline-variant/60 text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">public</span>
+                  Remoto
+                </span>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-4">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">Terraform</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">Kubernetes</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">Supabase</span>
+</div>
+</div>
+<div class="pt-3 border-t border-outline-variant/50 flex items-center justify-between">
+<span class="text-[11px] font-mono text-on-surface-variant">Cierre: 25 Abr</span>
+<button class="px-3.5 py-1.5 rounded-lg bg-surface-container-high hover:bg-amber-gold hover:text-on-primary text-white border border-outline/50 hover:border-amber-gold font-bold text-xs flex items-center gap-1.5 transition-all" type="button">
+<span>Postularme</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- CARD 4: Security & API Development Intern -->
+<article class="bg-surface-container-low/95 hover:bg-surface-container border border-outline/60 hover:border-amber-gold/50 rounded-2xl p-5 shadow-glow-card hover:shadow-glow-card-hover transition-all flex flex-col justify-between group relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-gold/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div>
+<div class="flex items-start justify-between gap-3 mb-3">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-surface-container-high border border-outline/50 flex items-center justify-center overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Kratos Identity logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ_vcCTib6AUGaDttZSbO1WZd6AX_EcbdLbvV1emOLiivexvOQDznWhAYbjF3rIFiNaPPzMb9YQpXP-WfVD6aUWCfLm-FolhWQxnG9PpGL9xv9opY5Gy6qsp2smodEjN4cIytqYI71aYykLbwtxJ5xbiSt1FoemgUPp01-yGLclqbY_FrtqMy43auUeWQgJQ1IwzQxaaEjvJZaoVde34TnWJNXhCX0-IezXMKv4_dA1tQHeUlefOs4"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h4 class="text-sm font-bold text-white group-hover:text-amber-gold transition-colors">Kratos Identity</h4>
+<span class="material-symbols-outlined text-[15px] text-amber-gold" title="Convenio Oficial Verificado">verified</span>
+</div>
+<span class="text-xs text-on-surface-variant/80 font-mono">Cybersecurity • IAM</span>
+</div>
+</div>
+<div class="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-gold/20 to-orange-500/20 border border-amber-gold/40 flex items-center gap-1 text-[11px] font-mono font-bold text-amber-gold shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[13px]">bolt</span>
+<span>91% Match</span>
+</div>
+</div>
+<h3 class="text-base font-bold text-white group-hover:text-amber-gold transition-colors leading-snug mb-2">
+                Security &amp; API Developer Intern
+              </h3>
+<div class="flex flex-wrap items-center gap-1.5 mb-3 text-xs">
+<span class="px-2.5 py-1 rounded-md bg-surface-container-high border border-outline-variant/60 font-mono text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-amber-gold">payments</span>
+                  $800 USD/m
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-amber-gold/10 border border-amber-gold/30 font-mono font-semibold text-amber-gold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                  160 hrs
+                </span>
+<span class="px-2.5 py-1 rounded-md bg-surface-container-high border border-outline-variant/60 text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">apartment</span>
+                  Presencial
+                </span>
+</div>
+<div class="flex flex-wrap gap-1.5 mb-4">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">OAuth2</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">Rust / Go</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest/80 text-white font-mono text-[11px] border border-outline/40">PostgreSQL</span>
+</div>
+</div>
+<!-- Card Bottom Bar: Under Technical Review -->
+<div class="pt-3 border-t border-outline-variant/50 flex items-center justify-between">
+<span class="text-[11px] font-mono text-tertiary">En Evaluación</span>
+<span class="px-3 py-1 rounded-lg bg-tertiary/15 text-tertiary border border-tertiary/30 font-semibold text-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">hourglass_top</span>
+<span>En Revisión Técnica</span>
+</span>
+</div>
+</article>
+</div>
+<!-- Minimal Accreditation Banner -->
+<div class="mt-2 p-3.5 rounded-xl bg-surface-container-low/70 border border-outline-variant/60 flex items-center justify-between text-xs text-on-surface-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-gold text-[18px]">verified_user</span>
+<span>Todas las convocatorias otorgan acreditación bajo el <strong>Art. 44</strong> del Comité Académico.</span>
+</div>
+<div class="flex items-center gap-1 font-mono">
+<button class="px-2.5 py-1 rounded bg-surface-container-high text-white font-bold">1</button>
+<button class="px-2.5 py-1 rounded hover:bg-surface-container text-on-surface-variant">2</button>
+</div>
+</div>
+</section>
+<!-- RIGHT: Streamlined Student Progress & Quick Context Companion Hub (4 cols on XL) -->
+<aside class="xl:col-span-4 flex flex-col gap-4">
+<!-- 1. Sleek 'Mi Progreso de Prácticas' Card -->
+<div class="bg-surface-container-low/95 border border-outline/60 rounded-2xl p-5 shadow-glow-card flex flex-col gap-4 relative overflow-hidden">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-gold text-[20px]">donut_large</span>
+<h3 class="text-sm font-bold text-white">Mi Progreso de Prácticas</h3>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-amber-gold/15 text-amber-gold font-mono text-xs font-bold border border-amber-gold/30">
+              71%
+            </span>
+</div>
+<!-- Gauge Ring & Statistics Core -->
+<div class="flex items-center justify-around gap-4 p-4 rounded-xl bg-surface-container/70 border border-outline-variant/40">
+<!-- Glowing SVG Ring -->
+<div class="relative w-24 h-24 flex items-center justify-center shrink-0">
+<svg class="w-24 h-24 transform -rotate-90 drop-shadow-[0_0_12px_rgba(249,159,40,0.35)]" viewbox="0 0 100 100">
+<circle class="text-surface-container-highest" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-amber-gold transition-all duration-1000" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="73" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute flex flex-col items-center justify-center text-center">
+<span class="font-extrabold text-xl text-white font-mono leading-none">340</span>
+<span class="text-[9px] font-mono text-on-surface-variant uppercase tracking-wider mt-0.5">de 480h</span>
+</div>
+</div>
+<!-- Detailed Counters -->
+<div class="flex flex-col gap-2 font-mono">
+<div>
+<span class="text-[10px] text-on-surface-variant uppercase block">Aprobadas</span>
+<span class="text-base font-bold text-white leading-tight">340 hrs</span>
+</div>
+<div>
+<span class="text-[10px] text-on-surface-variant uppercase block">Restantes</span>
+<span class="text-sm font-semibold text-amber-gold leading-tight">140 hrs</span>
+</div>
+<div>
+<span class="text-[10px] text-on-surface-variant uppercase block">Promedio</span>
+<span class="text-xs text-on-surface leading-tight">20h / semana</span>
+</div>
+</div>
+</div>
+<!-- Progress Bar & Linear Target -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span>Requisito de Titulación</span>
+<span class="font-mono text-white font-semibold">480 hrs requeridas</span>
+</div>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-amber-500 to-amber-gold rounded-full shadow-[0_0_8px_rgba(249,159,40,0.6)]" style="width: 71%;"></div>
+</div>
+</div>
+<!-- Single Streamlined CTA -->
+<a class="w-full py-2.5 px-4 bg-surface-container hover:bg-surface-container-high border border-outline/50 hover:border-amber-gold/50 text-white font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-2 group" href="#">
+<span class="material-symbols-outlined text-[16px] text-amber-gold group-hover:rotate-12 transition-transform">receipt_long</span>
+<span>Ver Bitácora Completa</span>
+</a>
+</div>
+<!-- 2. Compact 'Pendientes de Firma' Alert -->
+<div class="bg-surface-container-low/95 border-l-4 border-l-amber-gold border-y border-r border-outline-variant/60 rounded-2xl p-4 shadow-glow-card flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-white font-bold text-xs">
+<span class="material-symbols-outlined text-amber-gold text-[18px]">pending_actions</span>
+<span>2 Firmas Pendientes de Tutor</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-amber-gold animate-ping"></span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">
+            Esperando validación de la <strong class="text-white">Dra. Arisdelcy R.</strong> para acreditar <strong class="text-amber-gold font-mono">28 horas</strong> acumuladas en las semanas 11 y 12.
+          </p>
+<button class="mt-1 w-full py-2 bg-amber-gold/15 hover:bg-amber-gold/25 border border-amber-gold/30 text-amber-gold hover:text-white font-semibold text-xs rounded-xl text-center transition-all flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[15px]">send</span>
+<span>Enviar Recordatorio</span>
+</button>
+</div>
+<!-- 3. Clean Quick Filters (Modalidad & Horas) -->
+<div class="bg-surface-container-low/95 border border-outline/60 rounded-2xl p-5 shadow-glow-card flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-white uppercase tracking-wider">Filtro Rápido</span>
+<button class="text-xs text-amber-gold hover:underline font-mono" type="button">Restablecer</button>
+</div>
+<!-- Modality Checkboxes -->
+<div class="flex flex-col gap-2">
+<span class="text-[11px] font-mono text-on-surface-variant uppercase">Modalidad</span>
+<div class="flex flex-col gap-1.5">
+<label class="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded bg-surface-container border-outline/60 text-amber-gold focus:ring-0 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+<span>Remoto 100% (LatAm / Global)</span>
+</label>
+<label class="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded bg-surface-container border-outline/60 text-amber-gold focus:ring-0 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+<span>Híbrido Campus</span>
+</label>
+<label class="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
+<input class="w-4 h-4 rounded bg-surface-container border-outline/60 text-amber-gold focus:ring-0 cursor-pointer" type="checkbox"/>
+<span>Presencial</span>
+</label>
+</div>
+</div>
+<!-- Minimum Hours Range -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between text-xs">
+<span class="text-[11px] font-mono text-on-surface-variant uppercase">Horas Mínimas</span>
+<span class="font-mono text-amber-gold font-bold">≥ 120 hrs</span>
+</div>
+<input class="w-full accent-amber-gold bg-surface-container h-1.5 rounded-lg cursor-pointer" max="240" min="80" step="20" type="range" value="120"/>
+<div class="flex justify-between font-mono text-[10px] text-on-surface-variant/70">
+<span>80h</span>
+<span>160h</span>
+<span>240h</span>
+</div>
+</div>
+<!-- Partnership Strict Toggle -->
+<div class="pt-2 border-t border-outline-variant/40">
+<label class="flex items-start gap-2.5 text-xs text-on-surface cursor-pointer select-none">
+<input checked="" class="w-4 h-4 mt-0.5 rounded bg-surface-container border-outline/60 text-amber-gold focus:ring-0 cursor-pointer" type="checkbox"/>
+<span>Solo empresas con convenio activo directo con la Universidad</span>
+</label>
+</div>
+</div>
+<!-- 4. Support Helpline Compact Card -->
+<div class="p-3.5 bg-surface-container/60 border border-outline-variant/40 rounded-xl flex items-center justify-between text-xs text-on-surface-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-gold text-[18px]">support_agent</span>
+<span>Mesa de Prácticas: <strong class="text-white">Lun-Vie 8-16h</strong></span>
+</div>
+<a class="text-amber-gold font-semibold hover:underline" href="#">Contactar →</a>
+</div>
+</aside>
+</div>
+</main>
+<!-- Interactive Search / Filter Micro-interactions -->
+<script>
+    (function initPraxisDashboard() {
+      const searchInput = document.getElementById('internshipSearch');
+      const filterPills = document.querySelectorAll('#quickFilterPills button');
+      const cards = document.querySelectorAll('#cardsGrid article');
+
+      // Keyboard Shortcut listener (⌘K / Ctrl+K)
+      window.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          if (searchInput) {
+            searchInput.focus();
+            searchInput.select();
+          }
+        }
+      });
+
+      // Filter pill button interaction
+      filterPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          filterPills.forEach(p => {
+            p.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-container text-on-surface-variant hover:text-white hover:bg-surface-container-high border border-outline-variant/50 transition-all shrink-0';
+          });
+          pill.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-gold text-on-primary transition-all flex items-center gap-1.5 shrink-0 shadow-sm';
+
+          const filterType = pill.getAttribute('data-filter');
+          cards.forEach(card => {
+            if (filterType === 'all') {
+              card.style.display = 'flex';
+            } else {
+              const text = card.textContent.toLowerCase();
+              if (text.includes(filterType)) {
+                card.style.display = 'flex';
+              } else {
+                card.style.display = 'none';
+              }
+            }
+          });
+        });
+      });
+
+      // Real-time quick search input filter
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase().trim();
+          cards.forEach(card => {
+            const cardText = card.textContent.toLowerCase();
+            if (cardText.includes(query)) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      }
+    })();
+  </script>
+</body></html>
