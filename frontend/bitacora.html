@@ -216,14 +216,12 @@
     (function initLogInteractivity() {
       const searchInput = document.getElementById('logSearchInput');
       const filterButtons = document.querySelectorAll('#statusFilterBar button');
-      const entries = document.querySelectorAll('#entriesContainer article');
-
       function filterEntries() {
         const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const activeBtn = document.querySelector('#statusFilterBar button.bg-primary');
         const activeStatus = activeBtn ? activeBtn.getAttribute('data-status') : 'all';
 
-        entries.forEach(entry => {
+        document.querySelectorAll('#entriesContainer article').forEach(entry => {
           const entryStatus = entry.getAttribute('data-item-status');
           const entryText = entry.textContent.toLowerCase();
 
@@ -259,7 +257,7 @@
     (function initPraxisDashboard() {
       const searchInput = document.getElementById('internshipSearch');
       const filterPills = document.querySelectorAll('#quickFilterPills button');
-      const cards = document.querySelectorAll('#cardsGrid article');
+      const getCards = () => document.querySelectorAll('#cardsGrid article');
 
       // Keyboard Shortcut listener (⌘K / Ctrl+K)
       window.addEventListener('keydown', (e) => {
@@ -281,7 +279,7 @@
           pill.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-gold text-on-primary transition-all flex items-center gap-1.5 shrink-0 shadow-sm';
 
           const filterType = pill.getAttribute('data-filter');
-          cards.forEach(card => {
+          getCards().forEach(card => {
             if (filterType === 'all') {
               card.style.display = 'flex';
             } else {
@@ -300,7 +298,7 @@
       if (searchInput) {
         searchInput.addEventListener('input', (e) => {
           const query = e.target.value.toLowerCase().trim();
-          cards.forEach(card => {
+          getCards().forEach(card => {
             const cardText = card.textContent.toLowerCase();
             if (cardText.includes(query)) {
               card.style.display = 'flex';
@@ -312,4 +310,8 @@
       }
     })();
   </script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
 </body></html>

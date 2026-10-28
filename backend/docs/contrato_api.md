@@ -2,7 +2,15 @@
 
 **URL Base (Desarrollo):** `http://localhost:3000/api`
 
+### Perfil del usuario autenticado
+
+- `GET /perfil` devuelve `id`, `rol`, `nombre_completo` y `documento_identidad` del usuario indicado por el JWT.
+- `PATCH /perfil` acepta `nombre_completo` (3-120 caracteres) y `documento_identidad` (3-40 caracteres). El ID y el rol no son editables por el cliente.
+- Ambos endpoints requieren `Authorization: Bearer <access_token de Supabase>`.
+
 **Autenticación:** Todas las peticiones protegidas deben incluir el header:
+
+El cliente adjunta el access token de Supabase con el esquema Bearer.
 
 ```http
 Authorization: Bearer <TU_SUPABASE_JWT>
@@ -108,6 +116,7 @@ Estados destino aceptados: `En_Revisión_Por_Empresa`, `Entrevista_Asignada`, `S
 
 - **Endpoint:** `POST /bitacora`
 - **Rol Permitido:** `Estudiante`, titular de una postulación en estado `Seleccionado`.
+- **Respuesta:** `201 Created`, con el registro creado dentro de `data`.
 - **Payload:**
 
 ```json

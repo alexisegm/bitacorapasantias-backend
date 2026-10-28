@@ -18,7 +18,7 @@ router.post(
     catchAsync(async (req, res) => {
         const resultado = await bitacoraService.registrarHoras(req.body, req.user.id);
 
-        return res.status(200).json({
+        return res.status(201).json({
             mensaje: "Registro de bitácora creado exitosamente.",
             data: resultado
         });

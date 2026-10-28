@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Acceso | PraxisTrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: {
+                surface: '#140A0D', 'surface-container': '#241217',
+                'surface-container-low': '#1C0E13', 'surface-container-high': '#2D171E',
+                'on-surface': '#F9DBDF', 'on-surface-variant': '#D0B2B7',
+                primary: '#F99F28', 'on-primary': '#2D1600',
+                'outline-variant': '#381923', error: '#FF8A80'
+            }, fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] } } }
+        };
+    </script>
+</head>
+<body class="min-h-screen bg-surface font-sans text-on-surface">
+    <header class="border-b border-outline-variant bg-surface-container-low px-5 py-4">
+        <a href="index.html" class="mx-auto flex max-w-6xl items-center gap-3 font-bold no-underline">
+            <span class="material-symbols-outlined text-primary" aria-hidden="true">terminal</span>
+            <span>PraxisTrack</span>
+        </a>
+    </header>
+    <main class="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center px-4 py-10">
+        <section class="w-full max-w-lg rounded-2xl border border-outline-variant bg-surface-container-low p-6 shadow-2xl sm:p-8">
+            <p class="mb-2 text-sm font-semibold text-primary">Facultad de Ingeniería</p>
+            <h1 class="text-2xl font-bold">Tu espacio de pasantías</h1>
+            <p class="mt-2 text-sm text-on-surface-variant">Ingresa o crea una cuenta de estudiante para continuar.</p>
+
+            <div class="mt-6 grid grid-cols-2 gap-2 rounded-xl bg-surface-container p-1" role="tablist" aria-label="Acceso">
+                <button id="showLogin" class="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-on-primary" type="button" role="tab" aria-selected="true">Iniciar sesión</button>
+                <button id="showSignup" class="rounded-lg px-3 py-2 text-sm font-semibold text-on-surface-variant" type="button" role="tab" aria-selected="false">Crear cuenta</button>
+            </div>
+
+            <form id="loginForm" class="mt-6 space-y-4">
+                <label class="block text-sm font-medium">Correo electrónico
+                    <input name="email" type="email" autocomplete="email" required class="mt-1 w-full rounded-lg border-outline-variant bg-surface px-3 py-2 text-on-surface">
+                </label>
+                <label class="block text-sm font-medium">Contraseña
+                    <input name="password" type="password" autocomplete="current-password" minlength="8" required class="mt-1 w-full rounded-lg border-outline-variant bg-surface px-3 py-2 text-on-surface">
+                </label>
+                <button id="forgotPassword" class="text-sm text-primary underline" type="button">Olvidé mi contraseña</button>
+                <button class="w-full rounded-lg bg-primary px-4 py-3 font-bold text-on-primary" type="submit">Entrar</button>
+            </form>
+
+            <form id="signupForm" class="mt-6 hidden space-y-4">
+                <label class="block text-sm font-medium">Nombre completo
+                    <input name="nombre_completo" type="text" autocomplete="name" minlength="3" maxlength="120" required class="mt-1 w-full rounded-lg border-outline-variant bg-surface px-3 py-2 text-on-surface">
+                </label>
+                <label class="block text-sm font-medium">Documento de identidad
+                    <input name="documento_identidad" type="text" autocomplete="off" minlength="3" maxlength="40" required class="mt-1 w-full rounded-lg border-outline-variant bg-surface px-3 py-2 text-on-surface">
+                </label>
+                <label class="block text-sm font-medium">Correo electrónico
+                    <input name="email" type="email" autocomplete="email" required class="mt-1 w-full rounded-lg border-outline-variant bg-surface px-3 py-2 text-on-surface">
+                </label>
+                <label class="block text-sm font-medium">Contraseña (mínimo 8 caracteres)
+                    <input name="password" type="password" autocomplete="new-password" minlength="8" required class="mt-1 w-full rounded-lg border-outline-variant bg-surface px-3 py-2 text-on-surface">
+                </label>
+                <label class="block text-sm font-medium">Confirmar contraseña
+                    <input name="password_confirmation" type="password" autocomplete="new-password" minlength="8" required class="mt-1 w-full rounded-lg border-outline-variant bg-surface px-3 py-2 text-on-surface">
+                </label>
+                <p class="text-xs text-on-surface-variant">El registro público crea cuentas de estudiante. Los roles de empresa e institución deben ser asignados por administración.</p>
+                <button class="w-full rounded-lg bg-primary px-4 py-3 font-bold text-on-primary" type="submit">Crear cuenta de estudiante</button>
+            </form>
+
+            <form id="recoveryForm" class="mt-6 hidden space-y-4">
+                <label class="block text-sm font-medium">Nueva contraseña
+                    <input name="password" type="password" autocomplete="new-password" minlength="8" required class="mt-1 w-full rounded-lg border-outline-variant bg-surface px-3 py-2 text-on-surface">
+                </label>
+                <label class="block text-sm font-medium">Confirmar nueva contraseña
+                    <input name="password_confirmation" type="password" autocomplete="new-password" minlength="8" required class="mt-1 w-full rounded-lg border-outline-variant bg-surface px-3 py-2 text-on-surface">
+                </label>
+                <button class="w-full rounded-lg bg-primary px-4 py-3 font-bold text-on-primary" type="submit">Actualizar contraseña</button>
+            </form>
+
+            <p id="authMessage" class="mt-4 min-h-6 text-sm" role="status" aria-live="polite"></p>
+            <p class="mt-4 border-t border-outline-variant pt-4 text-xs text-on-surface-variant">Tu contraseña se valida y almacena exclusivamente mediante Supabase Auth.</p>
+        </section>
+    </main>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

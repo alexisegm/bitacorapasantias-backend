@@ -15,7 +15,12 @@ if (process.env.NODE_ENV === 'production' && !origenesConfigurados) {
     throw new Error('CORS_ORIGINS debe configurarse en producción.');
 }
 
-const dominiosPermitidos = (origenesConfigurados || 'http://localhost:5173,http://localhost:3000')
+const dominiosPermitidos = (origenesConfigurados || [
+    'http://localhost:5173',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'http://localhost:3000'
+].join(','))
     .split(',')
     .map(origen => origen.trim())
     .filter(Boolean);
@@ -38,11 +43,13 @@ app.use(express.json()); // Parsear JSON estricto
 const bitacoraRoutes = require('./routes/bitacora.routes');
 const ofertasRoutes = require('./routes/ofertas.routes');
 const postulacionesRoutes = require('./routes/postulaciones.routes');
+const perfilRoutes = require('./routes/perfil.routes');
 
 // Usar rutas
 app.use('/api/bitacora', bitacoraRoutes);
 app.use('/api/ofertas', ofertasRoutes);
 app.use('/api/postulaciones', postulacionesRoutes);
+app.use('/api/perfil', perfilRoutes);
 
 // Ruta de prueba para verificar salud del servidor
 app.get('/api/health', (req, res) => {

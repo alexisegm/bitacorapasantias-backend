@@ -10,7 +10,7 @@ Los `POST` y `PATCH` validan el cuerpo con Zod. Los esquemas usan `.strict()` pa
 
 `verificarToken` valida el access token contra Supabase Auth. `requerirRol` obtiene el rol de `perfiles` para el UUID autenticado; no debe confiarse en un rol enviado en el body ni en una metadata que el cliente pueda editar.
 
-El trigger de registro actualmente copia `rol` desde `auth.users.raw_user_meta_data`. Esa metadata la controla quien se registra: el flujo de producción debe asignar un rol inicial seguro o autorizar los roles privilegiados mediante un proceso confiable.
+El registro público asigna exclusivamente el rol `Estudiante`. La migración `supabase/migrations/20261028010000_secure_profile_on_signup.sql` crea el perfil sin confiar en metadata de rol. Los roles privilegiados deben asignarse mediante un flujo confiable de administración. La ruta de perfil deriva siempre el ID del token y nunca acepta cambios del rol.
 
 ## 3. Aislamiento de datos
 
@@ -18,7 +18,7 @@ El backend usa `SUPABASE_SERVICE_ROLE_KEY`, que omite RLS. Por ello, las consult
 
 ## 4. CORS
 
-Los orígenes de navegador se configuran mediante `CORS_ORIGINS`, una lista separada por comas. El valor predeterminado en desarrollo es `http://localhost:5173,http://localhost:3000`; en producción la variable es obligatoria y el servidor no inicia si falta. CORS es una política aplicada por navegadores, no autentica clientes ni bloquea cURL o Postman. El servidor permite solicitudes sin `Origin` para herramientas no-browser; esas rutas siguen requiriendo autenticación cuando corresponda.
+Los orígenes de navegador se configuran mediante `CORS_ORIGINS`, una lista separada por comas. El valor predeterminado en desarrollo es `http://localhost:5173,http://localhost:5500,http://127.0.0.1:5500,http://localhost:3000`; en producción la variable es obligatoria y el servidor no inicia si falta. CORS es una política aplicada por navegadores, no autentica clientes ni bloquea cURL o Postman. El servidor permite solicitudes sin `Origin` para herramientas no-browser; esas rutas siguen requiriendo autenticación cuando corresponda.
 
 ## 5. Errores
 
