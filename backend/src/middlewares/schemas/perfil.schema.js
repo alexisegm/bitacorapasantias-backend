@@ -11,4 +11,10 @@ const actualizarPerfilSchema = z.object({
         .max(40, { message: 'El documento no puede exceder 40 caracteres.' })
 }).strict();
 
-module.exports = { actualizarPerfilSchema };
+const actualizarRolSchema = z.object({
+    rol: z.enum(['Estudiante', 'Empresa', 'Institucion'])
+}).strict();
+
+const usuarioIdSchema = z.string().uuid({ message: 'El identificador debe ser un UUID válido.' });
+
+module.exports = { actualizarPerfilSchema, actualizarRolSchema, usuarioIdSchema };

@@ -29,7 +29,7 @@ router.post(
 router.get(
     '/',
     verificarToken,
-    requerirRol(['Estudiante', 'Empresa']),
+    requerirRol(['Estudiante', 'Empresa', 'Institucion']),
     catchAsync(async (req, res) => {
         const historial = await bitacoraService.obtenerHistorial(req.user);
         return res.status(200).json({ data: historial });
@@ -40,7 +40,7 @@ router.get(
 router.patch(
     '/:id/estado',
     verificarToken,
-    requerirRol(['Estudiante', 'Empresa']),
+    requerirRol(['Estudiante', 'Empresa', 'Institucion']),
     validateSchema(actualizarEstadoBitacoraSchema),
     catchAsync(async (req, res) => {
         const idRegistro = req.params.id;

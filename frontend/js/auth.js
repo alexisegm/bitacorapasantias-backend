@@ -191,6 +191,9 @@
             }
             return true;
         },
+        clearSession() {
+            saveSession(null);
+        },
         onSessionChange(listener) {
             global.addEventListener('praxistrack:session', event => listener(event.detail));
         }

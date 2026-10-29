@@ -10,7 +10,7 @@ const catchAsync = require('../utils/catchAsync');
 router.post(
     '/',
     verificarToken,
-    requerirRol(['Empresa']),
+    requerirRol(['Empresa', 'Institucion']),
     validateSchema(crearOfertaSchema),
     catchAsync(async (req, res) => {
         const resultado = await ofertasService.publicarOferta(req.body, req.user.id);
@@ -18,6 +18,27 @@ router.post(
             mensaje: "Oferta de pasantía publicada exitosamente.",
             data: resultado
         });
+    })
+);
+
+router.patch(
+    '/:id',
+    verificarToken,
+    requerirRol(['Empresa', 'Institucion']),
+    validateSchema(crearOfertaSchema),
+    catchAsync(async (req, res) => {
+        const oferta = await ofertasService.actualizarOferta(req.params.id, req.body, req.user);
+        return res.status(200).json({ mensaje: 'Oferta actualizada correctamente.', data: oferta });
+    })
+);
+
+router.delete(
+    '/:id',
+    verificarToken,
+    requerirRol(['Empresa', 'Institucion']),
+    catchAsync(async (req, res) => {
+        const oferta = await ofertasService.desactivarOferta(req.params.id, req.user);
+        return res.status(200).json({ mensaje: 'Oferta desactivada correctamente.', data: oferta });
     })
 );
 

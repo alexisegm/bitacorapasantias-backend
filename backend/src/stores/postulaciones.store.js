@@ -76,7 +76,7 @@ class PostulacionesStore {
             query = query.eq('id_estudiante', idUsuario);
         } else if (rol === 'Empresa') {
             query = query.eq('oferta_pasantia.id_empresa', idUsuario);
-        } else {
+        } else if (rol !== 'Institucion') {
             throw new Error('Rol no autorizado para visualizar postulaciones.');
         }
 

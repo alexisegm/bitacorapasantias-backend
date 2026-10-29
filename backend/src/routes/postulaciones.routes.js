@@ -10,7 +10,7 @@ const catchAsync = require('../utils/catchAsync');
 router.get(
     '/',
     verificarToken,
-    requerirRol(['Estudiante', 'Empresa']),
+    requerirRol(['Estudiante', 'Empresa', 'Institucion']),
     catchAsync(async (req, res) => {
         const listado = await postulacionesService.listar(req.user);
         return res.status(200).json({ data: listado });
@@ -36,14 +36,12 @@ router.post(
 router.patch(
     '/:id/estado',
     verificarToken,
-    requerirRol(['Empresa']),
+    requerirRol(['Empresa', 'Institucion']),
     validateSchema(actualizarEstadoSchema),
     catchAsync(async (req, res) => {
         const idPostulacion = req.params.id;
         const { nuevo_estado } = req.body;
-        const idEmpresa = req.user.id;
-
-        const resultado = await postulacionesService.avanzarEstado(idPostulacion, nuevo_estado, idEmpresa);
+        const resultado = await postulacionesService.avanzarEstado(idPostulacion, nuevo_estado, req.user);
 
         return res.status(200).json({
             mensaje: `Postulación avanzada exitosamente al estado: ${nuevo_estado}`,

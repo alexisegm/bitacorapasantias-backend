@@ -34,6 +34,16 @@
         return element;
     }
 
+    function initializePrivacyFooter() {
+        if (document.querySelector('[data-privacy-footer]')) return;
+        const footer = makeElement('footer', 'mt-10 border-t border-outline-variant/60 px-4 py-6 text-center text-xs text-on-surface-variant');
+        footer.dataset.privacyFooter = 'true';
+        const link = makeElement('a', 'hover:text-primary underline underline-offset-4', 'Centro de condiciones y privacidad de PraxisTrack');
+        link.href = 'privacidad.html';
+        footer.append(link);
+        document.body.append(footer);
+    }
+
     function initializeNavigation() {
         const header = document.querySelector('header');
         if (!header) return;
@@ -161,13 +171,17 @@
         controls.replaceChildren();
 
         const profileLink = header.querySelector('[data-profile-trigger]');
-        let session = await auth.getSession();
+        let session = null;
+        try {
+            session = await auth.getSession();
+        } catch (error) {
+            showStatus(error.message, true);
+        }
         if (session) {
             try {
                 activeProfile = await api.getProfile();
             } catch (error) {
                 showStatus(error.message, true);
-                session = await auth.getSession();
             }
         }
 
@@ -181,15 +195,21 @@
             const signIn = makeElement('a', 'rounded-lg bg-primary px-3 py-2 text-xs font-bold text-on-primary', 'Iniciar sesión');
             signIn.href = 'auth.html';
             controls.append(signIn);
-            return;
+            return false;
         }
 
         const displayName = activeProfile?.nombre_completo ||
             session.user?.user_metadata?.nombre_completo ||
             session.user?.email ||
             'Mi perfil';
+        const accountTag = activeProfile?.id
+            ? `PX-${activeProfile.id.replace(/-/g, '').slice(0, 8).toUpperCase()}`
+            : '';
         if (profileLink) {
-            profileLink.textContent = displayName;
+            profileLink.replaceChildren(makeElement('span', '', displayName));
+            if (accountTag) {
+                profileLink.append(makeElement('span', 'ml-2 rounded bg-primary/15 px-1.5 py-0.5 font-mono text-[10px] text-primary', accountTag));
+            }
             profileLink.href = 'perfil.html';
             profileLink.setAttribute('aria-label', `Abrir perfil de ${displayName}`);
         }
@@ -211,6 +231,7 @@
             }
         });
         controls.append(signOut);
+        return true;
     }
 
     function initializeAuthPage() {
@@ -390,6 +411,12 @@
         form.elements.documento_identidad.value = profile.documento_identidad || '';
         form.elements.email.value = session.user?.email || '';
         form.elements.rol.value = profile.rol || '';
+        initializeProfileProgress(section, profile);
+        initializeCvExport(section, profile);
+        initializeAccountDeletion(section);
+        if (profile.rol === 'Institucion') {
+            initializeInstitutionAdmin(main);
+        }
         form.addEventListener('submit', async event => {
             event.preventDefault();
             const button = form.querySelector('[type="submit"]');
@@ -413,18 +440,210 @@
         });
     }
 
+    function initializeProfileProgress(section) {
+        const progress = makeElement('section', 'mb-6 rounded-xl border border-outline-variant/60 bg-surface-container p-5');
+        progress.innerHTML = `
+            <h3 class="text-lg font-bold text-on-surface">Seguimiento de prácticas</h3>
+            <p class="mt-1 text-sm text-on-surface-variant">Las horas se contabilizan desde las entradas de bitácora vinculadas a postulaciones seleccionadas.</p>
+            <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                <div class="rounded-lg bg-surface-container-low p-3"><span class="block text-xs text-on-surface-variant">Horas aprobadas / cursadas</span><strong data-hours-approved class="text-xl text-primary">—</strong></div>
+                <div class="rounded-lg bg-surface-container-low p-3"><span class="block text-xs text-on-surface-variant">Pendientes de aprobación</span><strong data-hours-pending class="text-xl text-on-surface">—</strong></div>
+                <div class="rounded-lg bg-surface-container-low p-3"><span class="block text-xs text-on-surface-variant">Registros de bitácora</span><strong data-hours-count class="text-xl text-on-surface">—</strong></div>
+            </div>
+            <div class="mt-4"><div class="mb-1 flex justify-between text-xs text-on-surface-variant"><span>Avance referencial de 480 horas</span><span data-hours-progress-label>0%</span></div><div class="h-2 overflow-hidden rounded-full bg-surface-container-highest"><div data-hours-progress class="h-full rounded-full bg-primary" style="width:0%"></div></div></div>`;
+        section.insertBefore(progress, section.querySelector('form'));
+
+        api.listTimeEntries().then(entries => {
+            const approved = entries.filter(entry => entry.estado === 'Horas_Aprobadas')
+                .reduce((sum, entry) => sum + Number(entry.horas || 0), 0);
+            const pending = entries.filter(entry => entry.estado === 'Pendiente_De_Aprobación')
+                .reduce((sum, entry) => sum + Number(entry.horas || 0), 0);
+            const progressPercent = Math.min(100, Math.round(approved / 480 * 100));
+            progress.querySelector('[data-hours-approved]').textContent = `${approved} h`;
+            progress.querySelector('[data-hours-pending]').textContent = `${pending} h`;
+            progress.querySelector('[data-hours-count]').textContent = String(entries.length);
+            progress.querySelector('[data-hours-progress-label]').textContent = `${progressPercent}%`;
+            progress.querySelector('[data-hours-progress]').style.width = `${progressPercent}%`;
+        }).catch(error => {
+            progress.querySelector('[data-hours-approved]').textContent = 'No disponible';
+            showStatus(error.message, true);
+        });
+    }
+
+    function initializeCvExport(section, profile) {
+        const button = makeElement('button', 'mb-6 inline-flex items-center gap-2 rounded-lg border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface hover:border-primary', 'Imprimir / guardar perfil como CV');
+        button.type = 'button';
+        button.addEventListener('click', () => {
+            const name = profile.nombre_completo || 'Mi perfil';
+            document.title = `CV - ${name}`;
+            window.print();
+        });
+        section.insertBefore(button, section.querySelector('form'));
+    }
+
+    function initializeAccountDeletion(section) {
+        const dangerZone = makeElement('section', 'mt-8 rounded-xl border border-error/50 bg-error/5 p-5');
+        dangerZone.append(
+            makeElement('h3', 'font-bold text-error', 'Eliminar mi cuenta'),
+            makeElement('p', 'mt-1 text-sm text-on-surface-variant', 'Esta acción elimina tu usuario y sus datos asociados de forma permanente. No se puede deshacer.')
+        );
+        const button = makeElement('button', 'mt-4 rounded-lg border border-error px-4 py-2 text-sm font-bold text-error hover:bg-error/10', 'Eliminar mi cuenta');
+        button.type = 'button';
+        button.addEventListener('click', async () => {
+            if (!window.confirm('¿Eliminar permanentemente tu cuenta y los datos asociados?')) return;
+            button.disabled = true;
+            try {
+                await api.deleteAccount();
+                auth.clearSession();
+                window.location.replace('auth.html');
+            } catch (error) {
+                button.disabled = false;
+                showStatus(error.message, true);
+            }
+        });
+        dangerZone.append(button);
+        section.append(dangerZone);
+    }
+
+    async function initializeInstitutionAdmin(main) {
+        const section = makeElement('section', 'mx-auto my-6 max-w-5xl rounded-2xl border border-outline-variant bg-surface-container-low p-6');
+        section.id = 'institutionAdminPanel';
+        section.append(
+            makeElement('h2', 'text-xl font-bold text-on-surface', 'Administración institucional'),
+            makeElement('p', 'mb-5 mt-1 text-sm text-on-surface-variant', 'Gestiona roles de cuentas verificadas. Institución tiene permisos administrativos en PraxisTrack.')
+        );
+        const list = makeElement('div', 'space-y-2');
+        list.append(makeElement('p', 'text-sm text-on-surface-variant', 'Cargando usuarios...'));
+        section.append(list);
+        main.append(section);
+
+        try {
+            const users = await api.listUsers();
+            list.replaceChildren();
+            users.forEach(user => {
+                const row = makeElement('div', 'flex flex-col gap-3 rounded-lg border border-outline-variant/60 bg-surface-container p-3 sm:flex-row sm:items-center sm:justify-between');
+                const identity = makeElement('div');
+                identity.append(
+                    makeElement('p', 'font-semibold text-on-surface', user.nombre_completo),
+                    makeElement('p', 'text-xs text-on-surface-variant', `${user.documento_identidad || 'Sin documento'} · ${user.rol}`)
+                );
+                const role = document.createElement('select');
+                role.className = 'rounded-lg border-outline-variant bg-surface px-3 py-2 text-sm text-on-surface';
+                ['Estudiante', 'Empresa', 'Institucion'].forEach(value => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    role.append(option);
+                });
+                role.value = user.rol;
+                role.disabled = user.id === activeProfile.id;
+                role.setAttribute('aria-label', `Rol de ${user.nombre_completo}`);
+                role.addEventListener('change', async () => {
+                    role.disabled = true;
+                    try {
+                        await api.updateUserRole(user.id, role.value);
+                        identity.querySelector('p.text-xs').textContent = `${user.documento_identidad || 'Sin documento'} · ${role.value}`;
+                        showStatus(`Rol de ${user.nombre_completo} actualizado.`);
+                    } catch (error) {
+                        role.value = user.rol;
+                        showStatus(error.message, true);
+                    } finally {
+                        role.disabled = user.id === activeProfile.id;
+                    }
+                });
+                row.append(identity, role);
+                list.append(row);
+            });
+        } catch (error) {
+            list.replaceChildren(makeElement('p', 'text-sm text-error', error.message));
+        }
+    }
+
     function configureMarketplaceActions() {
         const search = document.getElementById('internshipSearch');
         const grid = document.getElementById('cardsGrid');
-        if (search && grid) {
-            const filter = () => {
-                const query = search.value.trim().toLowerCase();
-                grid.querySelectorAll('article').forEach(card => {
-                    card.hidden = !card.textContent.toLowerCase().includes(query);
+        const dialog = document.getElementById('opportunitySearchDialog');
+        const openSearch = document.getElementById('openOpportunitySearch');
+        const categoryButtons = [...(dialog?.querySelectorAll('[data-filter]') || [])];
+        const updateCategoryButton = button => {
+            const selected = button.dataset.filter === (dialog?.dataset.selectedCategory || 'all');
+            button.classList.toggle('bg-primary', selected);
+            button.classList.toggle('text-on-primary', selected);
+            button.classList.toggle('text-on-surface-variant', !selected);
+            button.classList.toggle('font-semibold', selected);
+            button.classList.toggle('border', !selected);
+            button.classList.toggle('border-outline-variant', !selected);
+            button.setAttribute('aria-pressed', String(selected));
+        };
+        const applyFilters = () => {
+            if (!search || !grid) return;
+            const query = search.value.trim().toLowerCase();
+            const category = dialog?.dataset.selectedCategory || 'all';
+            const selectedModes = [...(dialog?.querySelectorAll('[data-mode]:checked') || [])].map(input => input.dataset.mode);
+            const minimumHours = Number(dialog?.querySelector('[data-min-hours]')?.value || 0);
+            let visibleCount = 0;
+            grid.querySelectorAll('article').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                const hoursMatch = text.match(/(\d+(?:[.,]\d+)?)\s*(?:h(?:oras?)?|hrs?)\b/i);
+                const cardHours = hoursMatch ? Number(hoursMatch[1].replace(',', '.')) : null;
+                const categoryMatch = category === 'all' || text.includes(category);
+                const modeMatch = !selectedModes.length || selectedModes.some(mode => text.includes(mode));
+                card.hidden = !text.includes(query) || !categoryMatch || !modeMatch ||
+                    (cardHours !== null && cardHours < minimumHours);
+                if (!card.hidden) visibleCount += 1;
+            });
+            const resultCount = dialog?.querySelector('[data-search-results-count]');
+            if (resultCount) resultCount.textContent = `${visibleCount} resultado(s)`;
+        };
+
+        if (search && grid && !search.dataset.actionBound) {
+            search.addEventListener('input', applyFilters);
+            categoryButtons.forEach(button => {
+                updateCategoryButton(button);
+                button.addEventListener('click', () => {
+                    dialog.dataset.selectedCategory = button.dataset.filter;
+                    categoryButtons.forEach(updateCategoryButton);
+                    applyFilters();
                 });
-            };
-            search.addEventListener('input', filter);
+            });
+            dialog?.querySelectorAll('[data-mode], [data-min-hours]').forEach(control => {
+                control.addEventListener('input', applyFilters);
+                control.addEventListener('change', applyFilters);
+            });
+            const resetButton = dialog?.querySelector('[data-reset-filters]');
+            resetButton?.addEventListener('click', () => {
+                search.value = '';
+                dialog.querySelectorAll('[data-mode]').forEach(input => { input.checked = false; });
+                dialog.querySelector('[data-min-hours]').value = '0';
+                dialog.dataset.selectedCategory = 'all';
+                categoryButtons.forEach(updateCategoryButton);
+                applyFilters();
+            });
+            if (resetButton) resetButton.dataset.actionBound = 'true';
+            search.dataset.actionBound = 'true';
+            applyFilters();
         }
+        if (openSearch && dialog && !openSearch.dataset.actionBound) {
+            openSearch.addEventListener('click', () => {
+                if (!dialog.open) dialog.showModal();
+                search?.focus();
+            });
+            openSearch.dataset.actionBound = 'true';
+        }
+        dialog?.querySelectorAll('[data-close-search]').forEach(button => {
+            button.addEventListener('click', () => dialog.close());
+            button.dataset.actionBound = 'true';
+        });
+        dialog?.addEventListener('click', event => {
+            if (event.target === dialog) dialog.close();
+        });
+        window.addEventListener('keydown', event => {
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && dialog) {
+                event.preventDefault();
+                if (!dialog.open) dialog.showModal();
+                search?.focus();
+            }
+        });
 
         const exportButton = document.getElementById('btnExportPdf');
         if (exportButton) {
@@ -433,20 +652,8 @@
         }
         document.querySelectorAll('a').forEach(link => {
             const label = link.textContent.trim().toLowerCase();
-            if (label.includes('bitácora completa') || label.includes('horas totales')) link.href = 'bitacora.html';
+            if (label.includes('bitácora completa')) link.href = 'bitacora.html';
             if (label.includes('volver a postulaciones')) link.href = 'expediente.html';
-        });
-
-        const resetFilters = [...document.querySelectorAll('button')].find(button => button.textContent.trim() === 'Restablecer');
-        resetFilters?.addEventListener('click', () => {
-            resetFilters.dataset.actionBound = 'true';
-            document.querySelectorAll('input[type="checkbox"]').forEach((checkbox, index) => {
-                checkbox.checked = index < 2;
-            });
-            const range = document.querySelector('input[type="range"]');
-            if (range) range.value = range.min;
-            if (search) search.value = '';
-            grid?.querySelectorAll('article').forEach(card => { card.hidden = false; });
         });
 
         document.querySelectorAll('button[aria-label*="Alertas"], button[title*="Notificaciones"]').forEach(button => {
@@ -596,6 +803,27 @@
                     });
                     footer.append(applyButton);
                 }
+                if (activeProfile?.rol === 'Institucion') {
+                    const actions = makeElement('div', 'flex gap-2');
+                    const editButton = makeElement('button', 'rounded-lg border border-outline-variant px-3 py-1.5 text-xs font-semibold hover:border-primary', 'Editar');
+                    editButton.type = 'button';
+                    editButton.addEventListener('click', () => openOfferForm(offer));
+                    const deactivateButton = makeElement('button', 'rounded-lg border border-error/60 px-3 py-1.5 text-xs font-semibold text-error', 'Desactivar');
+                    deactivateButton.type = 'button';
+                    deactivateButton.addEventListener('click', async () => {
+                        if (!window.confirm(`¿Desactivar la oferta "${offer.titulo}"?`)) return;
+                        deactivateButton.disabled = true;
+                        try {
+                            await api.deactivateOffer(offer.id_oferta);
+                            await loadMarketplace();
+                        } catch (error) {
+                            deactivateButton.disabled = false;
+                            showStatus(error.message, true);
+                        }
+                    });
+                    actions.append(editButton, deactivateButton);
+                    footer.append(actions);
+                }
                 card.append(content, footer);
                 grid.append(card);
             });
@@ -606,7 +834,7 @@
             showStatus(error.message, true);
         }
 
-        function openOfferForm() {
+        function openOfferForm(offer = null) {
             let dialog = document.getElementById('publishOfferDialog');
             if (!dialog) {
                 dialog = document.createElement('dialog');
@@ -614,7 +842,7 @@
                 dialog.className = 'w-full max-w-lg rounded-2xl border border-outline-variant bg-surface-container p-6 text-on-surface backdrop:bg-black/70';
                 dialog.innerHTML = `
                     <form class="space-y-4">
-                        <h2 class="text-xl font-bold">Publicar oferta de pasantía</h2>
+                        <h2 class="text-xl font-bold" data-form-title>Publicar oferta de pasantía</h2>
                         <label class="block text-sm">Título
                             <input name="titulo" required minlength="5" maxlength="150" class="mt-1 w-full rounded-lg bg-surface-container-lowest p-2 text-on-surface">
                         </label>
@@ -624,7 +852,7 @@
                         <p class="text-sm text-error" role="alert"></p>
                         <div class="flex justify-end gap-2">
                             <button type="button" data-close class="rounded-lg border border-outline-variant px-4 py-2 text-sm">Cancelar</button>
-                            <button type="submit" class="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-on-primary">Publicar</button>
+                            <button type="submit" class="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-on-primary" data-submit-label>Publicar</button>
                         </div>
                     </form>`;
                 document.body.append(dialog);
@@ -638,14 +866,16 @@
                     submit.disabled = true;
                     error.textContent = '';
                     try {
-                        await api.publishOffer({
+                        const offerData = {
                             titulo: String(values.get('titulo')).trim(),
                             descripcion: String(values.get('descripcion')).trim()
-                        });
+                        };
+                        if (offer) await api.updateOffer(offer.id_oferta, offerData);
+                        else await api.publishOffer(offerData);
                         dialog.close();
                         form.reset();
                         await loadMarketplace();
-                        showStatus('Oferta publicada correctamente.');
+                        showStatus(offer ? 'Oferta actualizada correctamente.' : 'Oferta publicada correctamente.');
                     } catch (requestError) {
                         error.textContent = requestError.message;
                     } finally {
@@ -653,6 +883,11 @@
                     }
                 });
             }
+            const form = dialog.querySelector('form');
+            form.elements.titulo.value = offer?.titulo || '';
+            form.elements.descripcion.value = offer?.descripcion || '';
+            dialog.querySelector('[data-form-title]').textContent = offer ? 'Editar oferta' : 'Publicar oferta de pasantía';
+            dialog.querySelector('[data-submit-label]').textContent = offer ? 'Guardar cambios' : 'Publicar';
             dialog.showModal();
         }
     }
@@ -707,7 +942,7 @@
 
             const nextStates = activeProfile?.rol === 'Estudiante' && entry.estado === 'Registro_Creado'
                 ? [['Pendiente_De_Aprobación', 'Enviar a revisión']]
-                : activeProfile?.rol === 'Empresa' && entry.estado === 'Pendiente_De_Aprobación'
+                : ['Empresa', 'Institucion'].includes(activeProfile?.rol) && entry.estado === 'Pendiente_De_Aprobación'
                     ? [['Horas_Aprobadas', 'Aprobar'], ['Horas_Rechazadas', 'Rechazar']]
                     : [];
 
@@ -799,7 +1034,7 @@
                     makeElement('p', 'mt-1 text-sm text-on-surface-variant', `Estado: ${application.estado_actual} · ${application.fecha_registro ? new Date(application.fecha_registro).toLocaleDateString() : ''}`)
                 );
                 const actions = makeElement('div', 'flex flex-wrap gap-2');
-                const transitions = activeProfile?.rol === 'Empresa' ? ({
+                const transitions = ['Empresa', 'Institucion'].includes(activeProfile?.rol) ? ({
                     Enviada: [
                         ['En_Revisión_Por_Empresa', 'Iniciar revisión'],
                         ['Rechazado', 'Rechazar']
@@ -943,6 +1178,7 @@
     }
 
     async function initialize() {
+        initializePrivacyFooter();
         if (auth?.callbackError && !window.location.pathname.toLowerCase().endsWith('/auth.html')) {
             const directory = window.location.pathname.replace(/[^/]*$/, '');
             window.location.replace(`${directory}auth.html?callback_error=${encodeURIComponent(auth.callbackError)}`);
@@ -952,14 +1188,13 @@
         initializeNavigation();
         if (initializeAuthPage()) return;
 
-        try {
-            await initializeSessionControls();
-        } catch (error) {
-            showStatus(error.message, true);
-            return;
-        }
+        const isAuthenticated = await initializeSessionControls();
 
         const page = window.location.pathname.split('/').pop().toLowerCase();
+        if (page === 'privacidad.html') {
+            configureOtherActions();
+            return;
+        }
         if (page === 'perfil.html') {
             try {
                 await initializeProfilePage();
@@ -970,7 +1205,7 @@
             return;
         }
 
-        if (!await auth?.getSession()) {
+        if (!isAuthenticated) {
             const nextPage = page && page !== 'index.html' ? page : 'index.html';
             const main = document.querySelector('main');
             if (main) {

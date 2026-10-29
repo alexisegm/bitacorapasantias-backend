@@ -113,20 +113,6 @@
 </nav>
 <!-- Right Header Elements: Progress Capsule + Alerts + Profile Popover Trigger -->
 <div class="flex items-center gap-3">
-<!-- Live Academic Hours Capsule -->
-<a class="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-surface-container-low border border-outline/50 hover:border-amber-gold/50 transition-all group" href="#">
-<div class="flex flex-col text-right">
-<span class="text-[10px] font-mono text-on-surface-variant/80 uppercase tracking-wider leading-none">Horas Totales</span>
-<span class="text-xs font-mono font-bold text-white group-hover:text-amber-gold transition-colors leading-tight">340 <span class="text-on-surface-variant/60 font-normal">/ 480h</span></span>
-</div>
-<div class="relative w-7 h-7 flex items-center justify-center">
-<svg class="w-7 h-7 transform -rotate-90" viewbox="0 0 36 36">
-<path class="text-surface-container-highest" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
-<path class="text-amber-gold" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="71, 100" stroke-linecap="round" stroke-width="3.5"></path>
-</svg>
-<span class="absolute text-[8px] font-bold text-amber-gold font-mono">71%</span>
-</div>
-</a>
 <!-- Notifications Bell -->
 <button aria-label="Alertas y Notificaciones" class="relative p-2 text-on-surface-variant hover:text-white bg-surface-container-low hover:bg-surface-container rounded-xl border border-outline-variant/60 transition-colors" type="button">
 <span class="material-symbols-outlined text-[20px] block">notifications</span>
@@ -145,73 +131,54 @@
 <div>
 <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
             Marketplace de Pasantías
-            <span class="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-amber-gold/15 text-amber-gold border border-amber-gold/30">
-              Convocatorias 2025
-            </span>
 </h1>
-<p class="text-sm text-on-surface-variant mt-1">
-            Vacantes pre-aprobadas y auditadas para acreditación directa en tu plan curricular.
-          </p>
 </div>
-<!-- Quick Status Pill & CV Action -->
-<div class="flex items-center gap-2.5 self-start md:self-auto">
-<div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-container border border-outline-variant/60 text-xs font-mono text-on-surface-variant">
-<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-<span>ID: <strong class="text-white">PX-9482-TL</strong></span>
 </div>
-<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-outline/50 text-xs font-semibold text-white transition-all">
-<span class="material-symbols-outlined text-[16px] text-amber-gold">description</span>
-<span>CV Académico</span>
+<button id="openOpportunitySearch" class="inline-flex items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant hover:border-primary" type="button">
+<span class="material-symbols-outlined text-primary">search</span>
+<span>Buscar y filtrar oportunidades</span>
+<span class="ml-8 rounded bg-surface-container-highest px-2 py-1 font-mono text-xs">Ctrl K</span>
 </button>
-</div>
-</div>
-<!-- Modern Search & Filter Command Bar -->
-<div class="p-3 bg-surface-container-low/90 border border-outline-variant/80 rounded-2xl shadow-glow-card backdrop-blur-md">
-<div class="flex flex-col lg:flex-row lg:items-center gap-3">
-<!-- Search Input with Keyboard Shortcut badge -->
-<div class="relative flex-1">
-<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">search</span>
-<input class="w-full h-11 pl-11 pr-20 bg-surface-container/90 border border-outline/60 focus:border-amber-gold focus:ring-1 focus:ring-amber-gold rounded-xl text-sm text-white placeholder:text-on-surface-variant/60 transition-all" id="internshipSearch" placeholder="Buscar por rol, stack (Go, PostgreSQL, Docker), empresa o modalidad..." type="text"/>
-<div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 text-[11px] font-mono bg-surface-container-highest px-2 py-0.5 rounded text-on-surface-variant pointer-events-none border border-outline-variant/40">
-<span>⌘K</span>
-</div>
-</div>
-<!-- Quick Filter Tags -->
-<div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0" id="quickFilterPills">
-<button class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-gold text-on-primary transition-all flex items-center gap-1.5 shrink-0" data-filter="all" type="button">
-<span>Todos</span>
-<span class="bg-black/20 text-on-primary px-1.5 py-0.2 rounded-full text-[10px] font-mono">6</span>
-</button>
-<button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-container text-on-surface-variant hover:text-white hover:bg-surface-container-high border border-outline-variant/50 transition-all shrink-0" data-filter="backend" type="button">
-              Backend
-            </button>
-<button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-container text-on-surface-variant hover:text-white hover:bg-surface-container-high border border-outline-variant/50 transition-all shrink-0" data-filter="fullstack" type="button">
-              Fullstack
-            </button>
-<button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-container text-on-surface-variant hover:text-white hover:bg-surface-container-high border border-outline-variant/50 transition-all shrink-0" data-filter="remoto" type="button">
-              Remoto
-            </button>
-<button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-container text-on-surface-variant hover:text-white hover:bg-surface-container-high border border-outline-variant/50 transition-all shrink-0 flex items-center gap-1" data-filter="convenio" type="button">
-<span class="material-symbols-outlined text-[14px] text-amber-gold">verified</span>
-<span>Convenio Activo</span>
-</button>
-</div>
-<!-- Sort Select -->
-<div class="flex items-center gap-2 pl-1 shrink-0">
-<select class="bg-surface-container border border-outline-variant/60 text-xs font-medium text-white px-3 py-2 rounded-xl focus:border-amber-gold focus:ring-0 cursor-pointer">
-<option>Mayor Match Score</option>
-<option>Más Horas Acreditadas</option>
-<option>Cierre Próximo</option>
-<option>Mayor Estipendio</option>
-</select>
-</div>
-</div>
-</div>
 </section>
-<!-- Main Grid: Opportunities Stream (8 cols) + Companion Hub (4 cols) -->
+<dialog id="opportunitySearchDialog" class="w-full max-w-2xl rounded-2xl border border-outline-variant bg-surface-container p-6 text-on-surface backdrop:bg-black/70">
+<div class="flex items-center justify-between gap-3">
+<h2 class="text-xl font-bold">Buscar y filtrar oportunidades</h2>
+<button data-close-search class="rounded-lg border border-outline-variant px-3 py-1.5 text-sm" type="button">Cerrar</button>
+</div>
+<label class="mt-5 block text-sm font-medium">Palabras clave
+<input id="internshipSearch" class="mt-2 w-full rounded-lg border-outline-variant bg-surface px-3 py-3 text-on-surface" placeholder="Cargo, empresa, descripción o modalidad" type="search">
+</label>
+<fieldset class="mt-5">
+<legend class="mb-2 text-sm font-semibold">Categoría</legend>
+<div id="quickFilterPills" class="flex flex-wrap gap-2">
+<button data-filter="all" aria-pressed="true" class="rounded-lg px-3 py-2 text-xs font-semibold" type="button">Todas</button>
+<button data-filter="backend" aria-pressed="false" class="rounded-lg px-3 py-2 text-xs" type="button">Backend</button>
+<button data-filter="fullstack" aria-pressed="false" class="rounded-lg px-3 py-2 text-xs" type="button">Fullstack</button>
+<button data-filter="remoto" aria-pressed="false" class="rounded-lg px-3 py-2 text-xs" type="button">Remoto</button>
+<button data-filter="convenio" aria-pressed="false" class="rounded-lg px-3 py-2 text-xs" type="button">Convenio</button>
+</div>
+</fieldset>
+<fieldset class="mt-5">
+<legend class="mb-2 text-sm font-semibold">Modalidad</legend>
+<div class="flex flex-wrap gap-4 text-sm">
+<label class="flex items-center gap-2"><input data-mode="remoto" type="checkbox">Remoto</label>
+<label class="flex items-center gap-2"><input data-mode="híbrido" type="checkbox">Híbrido</label>
+<label class="flex items-center gap-2"><input data-mode="presencial" type="checkbox">Presencial</label>
+</div>
+</fieldset>
+<label class="mt-5 block text-sm font-medium">Horas estimadas mínimas
+<input data-min-hours class="mt-2 w-full accent-amber-gold" type="range" min="0" max="240" step="20" value="0">
+<span class="text-xs text-on-surface-variant">0–240 horas</span>
+</label>
+<p data-search-results-count class="mt-4 text-xs text-on-surface-variant" role="status" aria-live="polite"></p>
+<div class="mt-6 flex justify-between">
+<button data-reset-filters class="text-sm text-primary underline" type="button">Limpiar filtros</button>
+<button data-close-search class="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-on-primary" type="button">Ver resultados</button>
+</div>
+</dialog>
+<!-- Main Grid: Opportunities Stream -->
 <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-<!-- LEFT: Fresh, Scannable Internship Cards (8 cols on XL) -->
-<section class="xl:col-span-8 flex flex-col gap-4">
+<section class="xl:col-span-12 flex flex-col gap-4">
 <div class="flex items-center justify-between px-1">
 <div class="flex items-center gap-2">
 <span class="text-sm font-semibold text-white">Oportunidades Disponibles</span>
@@ -455,195 +422,8 @@
 </div>
 </div>
 </section>
-<!-- RIGHT: Streamlined Student Progress & Quick Context Companion Hub (4 cols on XL) -->
-<aside class="xl:col-span-4 flex flex-col gap-4">
-<!-- 1. Sleek 'Mi Progreso de Prácticas' Card -->
-<div class="bg-surface-container-low/95 border border-outline/60 rounded-2xl p-5 shadow-glow-card flex flex-col gap-4 relative overflow-hidden">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-amber-gold text-[20px]">donut_large</span>
-<h3 class="text-sm font-bold text-white">Mi Progreso de Prácticas</h3>
-</div>
-<span class="px-2 py-0.5 rounded-full bg-amber-gold/15 text-amber-gold font-mono text-xs font-bold border border-amber-gold/30">
-              71%
-            </span>
-</div>
-<!-- Gauge Ring & Statistics Core -->
-<div class="flex items-center justify-around gap-4 p-4 rounded-xl bg-surface-container/70 border border-outline-variant/40">
-<!-- Glowing SVG Ring -->
-<div class="relative w-24 h-24 flex items-center justify-center shrink-0">
-<svg class="w-24 h-24 transform -rotate-90 drop-shadow-[0_0_12px_rgba(249,159,40,0.35)]" viewbox="0 0 100 100">
-<circle class="text-surface-container-highest" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="8"></circle>
-<circle class="text-amber-gold transition-all duration-1000" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="73" stroke-linecap="round" stroke-width="8"></circle>
-</svg>
-<div class="absolute flex flex-col items-center justify-center text-center">
-<span class="font-extrabold text-xl text-white font-mono leading-none">340</span>
-<span class="text-[9px] font-mono text-on-surface-variant uppercase tracking-wider mt-0.5">de 480h</span>
-</div>
-</div>
-<!-- Detailed Counters -->
-<div class="flex flex-col gap-2 font-mono">
-<div>
-<span class="text-[10px] text-on-surface-variant uppercase block">Aprobadas</span>
-<span class="text-base font-bold text-white leading-tight">340 hrs</span>
-</div>
-<div>
-<span class="text-[10px] text-on-surface-variant uppercase block">Restantes</span>
-<span class="text-sm font-semibold text-amber-gold leading-tight">140 hrs</span>
-</div>
-<div>
-<span class="text-[10px] text-on-surface-variant uppercase block">Promedio</span>
-<span class="text-xs text-on-surface leading-tight">20h / semana</span>
-</div>
-</div>
-</div>
-<!-- Progress Bar & Linear Target -->
-<div class="flex flex-col gap-1.5">
-<div class="flex items-center justify-between text-xs text-on-surface-variant">
-<span>Requisito de Titulación</span>
-<span class="font-mono text-white font-semibold">480 hrs requeridas</span>
-</div>
-<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-gradient-to-r from-amber-500 to-amber-gold rounded-full shadow-[0_0_8px_rgba(249,159,40,0.6)]" style="width: 71%;"></div>
-</div>
-</div>
-<!-- Single Streamlined CTA -->
-<a class="w-full py-2.5 px-4 bg-surface-container hover:bg-surface-container-high border border-outline/50 hover:border-amber-gold/50 text-white font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-2 group" href="#">
-<span class="material-symbols-outlined text-[16px] text-amber-gold group-hover:rotate-12 transition-transform">receipt_long</span>
-<span>Ver Bitácora Completa</span>
-</a>
-</div>
-<!-- 2. Compact 'Pendientes de Firma' Alert -->
-<div class="bg-surface-container-low/95 border-l-4 border-l-amber-gold border-y border-r border-outline-variant/60 rounded-2xl p-4 shadow-glow-card flex flex-col gap-2.5">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-1.5 text-white font-bold text-xs">
-<span class="material-symbols-outlined text-amber-gold text-[18px]">pending_actions</span>
-<span>2 Firmas Pendientes de Tutor</span>
-</div>
-<span class="w-2 h-2 rounded-full bg-amber-gold animate-ping"></span>
-</div>
-<p class="text-xs text-on-surface-variant leading-relaxed">
-            Esperando validación de la <strong class="text-white">Dra. Arisdelcy R.</strong> para acreditar <strong class="text-amber-gold font-mono">28 horas</strong> acumuladas en las semanas 11 y 12.
-          </p>
-<button class="mt-1 w-full py-2 bg-amber-gold/15 hover:bg-amber-gold/25 border border-amber-gold/30 text-amber-gold hover:text-white font-semibold text-xs rounded-xl text-center transition-all flex items-center justify-center gap-1.5" type="button">
-<span class="material-symbols-outlined text-[15px]">send</span>
-<span>Enviar Recordatorio</span>
-</button>
-</div>
-<!-- 3. Clean Quick Filters (Modalidad & Horas) -->
-<div class="bg-surface-container-low/95 border border-outline/60 rounded-2xl p-5 shadow-glow-card flex flex-col gap-4">
-<div class="flex items-center justify-between">
-<span class="text-xs font-bold text-white uppercase tracking-wider">Filtro Rápido</span>
-<button class="text-xs text-amber-gold hover:underline font-mono" type="button">Restablecer</button>
-</div>
-<!-- Modality Checkboxes -->
-<div class="flex flex-col gap-2">
-<span class="text-[11px] font-mono text-on-surface-variant uppercase">Modalidad</span>
-<div class="flex flex-col gap-1.5">
-<label class="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
-<input checked="" class="w-4 h-4 rounded bg-surface-container border-outline/60 text-amber-gold focus:ring-0 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
-<span>Remoto 100% (LatAm / Global)</span>
-</label>
-<label class="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
-<input checked="" class="w-4 h-4 rounded bg-surface-container border-outline/60 text-amber-gold focus:ring-0 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
-<span>Híbrido Campus</span>
-</label>
-<label class="flex items-center gap-2.5 text-xs text-white cursor-pointer select-none">
-<input class="w-4 h-4 rounded bg-surface-container border-outline/60 text-amber-gold focus:ring-0 cursor-pointer" type="checkbox"/>
-<span>Presencial</span>
-</label>
-</div>
-</div>
-<!-- Minimum Hours Range -->
-<div class="flex flex-col gap-2">
-<div class="flex items-center justify-between text-xs">
-<span class="text-[11px] font-mono text-on-surface-variant uppercase">Horas Mínimas</span>
-<span class="font-mono text-amber-gold font-bold">≥ 120 hrs</span>
-</div>
-<input class="w-full accent-amber-gold bg-surface-container h-1.5 rounded-lg cursor-pointer" max="240" min="80" step="20" type="range" value="120"/>
-<div class="flex justify-between font-mono text-[10px] text-on-surface-variant/70">
-<span>80h</span>
-<span>160h</span>
-<span>240h</span>
-</div>
-</div>
-<!-- Partnership Strict Toggle -->
-<div class="pt-2 border-t border-outline-variant/40">
-<label class="flex items-start gap-2.5 text-xs text-on-surface cursor-pointer select-none">
-<input checked="" class="w-4 h-4 mt-0.5 rounded bg-surface-container border-outline/60 text-amber-gold focus:ring-0 cursor-pointer" type="checkbox"/>
-<span>Solo empresas con convenio activo directo con la Universidad</span>
-</label>
-</div>
-</div>
-<!-- 4. Support Helpline Compact Card -->
-<div class="p-3.5 bg-surface-container/60 border border-outline-variant/40 rounded-xl flex items-center justify-between text-xs text-on-surface-variant">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-amber-gold text-[18px]">support_agent</span>
-<span>Mesa de Prácticas: <strong class="text-white">Lun-Vie 8-16h</strong></span>
-</div>
-<a class="text-amber-gold font-semibold hover:underline" href="#">Contactar →</a>
-</div>
-</aside>
 </div>
 </main>
-<!-- Interactive Search / Filter Micro-interactions -->
-<script>
-    (function initPraxisDashboard() {
-      const searchInput = document.getElementById('internshipSearch');
-      const filterPills = document.querySelectorAll('#quickFilterPills button');
-      const getCards = () => document.querySelectorAll('#cardsGrid article');
-
-      // Keyboard Shortcut listener (⌘K / Ctrl+K)
-      window.addEventListener('keydown', (e) => {
-        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-          e.preventDefault();
-          if (searchInput) {
-            searchInput.focus();
-            searchInput.select();
-          }
-        }
-      });
-
-      // Filter pill button interaction
-      filterPills.forEach(pill => {
-        pill.addEventListener('click', () => {
-          filterPills.forEach(p => {
-            p.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-container text-on-surface-variant hover:text-white hover:bg-surface-container-high border border-outline-variant/50 transition-all shrink-0';
-          });
-          pill.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-gold text-on-primary transition-all flex items-center gap-1.5 shrink-0 shadow-sm';
-
-          const filterType = pill.getAttribute('data-filter');
-          getCards().forEach(card => {
-            if (filterType === 'all') {
-              card.style.display = 'flex';
-            } else {
-              const text = card.textContent.toLowerCase();
-              if (text.includes(filterType)) {
-                card.style.display = 'flex';
-              } else {
-                card.style.display = 'none';
-              }
-            }
-          });
-        });
-      });
-
-      // Real-time quick search input filter
-      if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-          const query = e.target.value.toLowerCase().trim();
-          getCards().forEach(card => {
-            const cardText = card.textContent.toLowerCase();
-            if (cardText.includes(query)) {
-              card.style.display = 'flex';
-            } else {
-              card.style.display = 'none';
-            }
-          });
-        });
-      }
-    })();
-  </script>
 <script src="js/config.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/api.js"></script>

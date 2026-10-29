@@ -132,6 +132,18 @@
                 body: profile
             }).then(result => result.data);
         },
+        listUsers() {
+            return request('/perfil/usuarios').then(result => result.data);
+        },
+        updateUserRole(id, role) {
+            return request(`/perfil/usuarios/${encodeURIComponent(id)}/rol`, {
+                method: 'PATCH',
+                body: { rol: role }
+            }).then(result => result.data);
+        },
+        deleteAccount() {
+            return request('/perfil/cuenta', { method: 'DELETE' });
+        },
         listTimeEntries() {
             return request('/bitacora').then(result => result.data);
         },
@@ -140,6 +152,15 @@
                 method: 'POST',
                 body: offer
             }).then(result => result.data);
+        },
+        updateOffer(id, offer) {
+            return request(`/ofertas/${encodeURIComponent(id)}`, {
+                method: 'PATCH',
+                body: offer
+            }).then(result => result.data);
+        },
+        deactivateOffer(id) {
+            return request(`/ofertas/${encodeURIComponent(id)}`, { method: 'DELETE' }).then(result => result.data);
         },
         updateApplicationStatus(id, nextStatus) {
             return request(`/postulaciones/${encodeURIComponent(id)}/estado`, {

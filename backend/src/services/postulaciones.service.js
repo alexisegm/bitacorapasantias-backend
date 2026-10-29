@@ -32,7 +32,7 @@ class PostulacionesService {
         }
 
         // Seguridad: Verificar que la oferta pertenece a la empresa que intenta mutar el estado
-        if (postulacion.oferta_pasantia.id_empresa !== idEmpresa) {
+        if (idEmpresa.rol !== 'Institucion' && postulacion.oferta_pasantia.id_empresa !== idEmpresa.id) {
             throw new AppError('Operación denegada. No eres el propietario de esta oferta.', 403);
         }
 
@@ -56,7 +56,7 @@ class PostulacionesService {
 
             async listar(usuarioAutenticado) {
                 const { id, rol } = usuarioAutenticado;
-                if (!['Estudiante', 'Empresa'].includes(rol)) {
+                if (!['Estudiante', 'Empresa', 'Institucion'].includes(rol)) {
                     throw new AppError('Rol no autorizado para visualizar postulaciones.', 403);
                 }
 

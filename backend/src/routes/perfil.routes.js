@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { verificarToken } = require('../middlewares/auth.middleware');
+const { verificarToken, requerirRol } = require('../middlewares/auth.middleware');
 const validateSchema = require('../middlewares/validator');
-const { actualizarPerfilSchema } = require('../middlewares/schemas/perfil.schema');
+const {
+    actualizarPerfilSchema,
+    actualizarRolSchema,
+    usuarioIdSchema
+} = require('../middlewares/schemas/perfil.schema');
 const perfilService = require('../services/perfil.service');
 const catchAsync = require('../utils/catchAsync');
 
@@ -23,5 +27,30 @@ router.patch(
         });
     })
 );
+
+router.get('/usuarios', verificarToken, requerirRol(['Institucion']), catchAsync(async (req, res) => {
+    const usuarios = await perfilService.listarUsuarios();
+    return res.status(200).json({ data: usuarios });
+}));
+
+router.patch(
+    '/usuarios/:id/rol',
+    verificarToken,
+    requerirRol(['Institucion']),
+    validateSchema(actualizarRolSchema),
+    catchAsync(async (req, res) => {
+        const idUsuario = usuarioIdSchema.parse(req.params.id);
+        const perfil = await perfilService.actualizarRol(req.user.id, idUsuario, req.body.rol);
+        return res.status(200).json({
+            mensaje: 'Rol actualizado correctamente.',
+            data: perfil
+        });
+    })
+);
+
+router.delete('/cuenta', verificarToken, catchAsync(async (req, res) => {
+    await perfilService.eliminarCuenta(req.user.id);
+    return res.status(204).end();
+}));
 
 module.exports = router;

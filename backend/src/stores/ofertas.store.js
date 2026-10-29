@@ -1,6 +1,17 @@
 const supabase = require('../config/supabase');
 
 class OfertasStore {
+    async obtenerPorId(id) {
+        const { data, error } = await supabase
+            .from('oferta_pasantia')
+            .select('id, id_empresa, titulo, descripcion, activa, creado_en')
+            .eq('id', id)
+            .maybeSingle();
+
+        if (error) throw new Error(error.message);
+        return data;
+    }
+
     async crearOferta(datos, id_empresa) {
         const { data, error } = await supabase
             .from('oferta_pasantia')
@@ -29,6 +40,18 @@ class OfertasStore {
             `)
             .eq('activa', true)
             .order('creado_en', { ascending: false });
+
+        if (error) throw new Error(error.message);
+        return data;
+    }
+
+    async actualizar(id, datos) {
+        const { data, error } = await supabase
+            .from('oferta_pasantia')
+            .update(datos)
+            .eq('id', id)
+            .select('id, id_empresa, titulo, descripcion, activa, creado_en')
+            .single();
 
         if (error) throw new Error(error.message);
         return data;

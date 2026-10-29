@@ -59,7 +59,8 @@ class BitacoraService {
                 throw new AppError('Operación denegada. Solo el estudiante titular puede enviar horas a revisión.', 403);
             }
         } else if (nuevoEstado === 'Horas_Aprobadas' || nuevoEstado === 'Horas_Rechazadas') {
-            if (usuarioAutenticado.rol !== 'Empresa' || usuarioAutenticado.id !== idEmpresa) {
+            if (usuarioAutenticado.rol !== 'Institucion' &&
+                (usuarioAutenticado.rol !== 'Empresa' || usuarioAutenticado.id !== idEmpresa)) {
                 throw new AppError('Operación denegada. Solo la empresa tutora puede aprobar o rechazar horas.', 403);
             }
         }
@@ -81,7 +82,7 @@ class BitacoraService {
 
     async obtenerHistorial(usuarioAutenticado) {
         const { id, rol } = usuarioAutenticado;
-        if (!['Estudiante', 'Empresa'].includes(rol)) {
+        if (!['Estudiante', 'Empresa', 'Institucion'].includes(rol)) {
             throw new AppError('Rol no autorizado para visualizar bitácoras.', 403);
         }
 
