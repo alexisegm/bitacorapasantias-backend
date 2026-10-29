@@ -9,17 +9,17 @@ Documentación complementaria: [Contrato de API](docs/contrato_api.md), [Arquite
 Requisitos: Node.js y credenciales de un proyecto Supabase de desarrollo.
 
 1. Instalar dependencias con `npm install`.
-2. Crear `.env` con `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `PORT` (opcional), `NODE_ENV` y `CORS_ORIGINS`.
+2. Copiar `.env.example` a `.env` y completar `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `PORT` (opcional), `NODE_ENV` y `CORS_ORIGINS`.
 3. Iniciar el servidor en desarrollo con `npm run dev`; para ejecutar el proceso de producción, usar `npm start` con `NODE_ENV=production`.
 4. Confirmar que responde en `GET http://localhost:3000/api/health`.
 
-No compartan `.env` ni expongan `SUPABASE_SERVICE_ROLE_KEY` al frontend. El proyecto no define actualmente un script `npm test`; las validaciones disponibles deben ejecutarse por archivo o añadirse al configurar una suite.
+No compartan `.env` ni expongan `SUPABASE_SECRET_KEY` (o la antigua `SUPABASE_SERVICE_ROLE_KEY`) al frontend. Si una clave secreta se comparte por error, rótela desde Supabase antes de continuar. El proyecto no define actualmente un script `npm test`; las validaciones disponibles deben ejecutarse por archivo o añadirse al configurar una suite.
 
 ## Conectar el frontend local
 
 - Sirvan la carpeta `frontend` con un servidor local, por ejemplo VS Code Live Server en `http://localhost:5500`.
 - El cliente usa por defecto `http://localhost:3000/api`; se puede cambiar antes de cargar `js/api.js` mediante `window.PRAXISTRACK_CONFIG.apiBaseUrl`.
-- El cliente toma el access token de la sesión de Supabase almacenada por `supabase-js` o de un proveedor `window.PRAXISTRACK_CONFIG.getAccessToken`. No coloquen la service-role key en el frontend.
+- El cliente toma el access token de la sesión propia de PraxisTrack o de un proveedor `window.PRAXISTRACK_CONFIG.getAccessToken`. Las claves publicable/anon pueden estar en el frontend; nunca coloquen una clave secreta allí.
 - Si existen varias sesiones de Supabase en el navegador, configuren `window.PRAXISTRACK_CONFIG.supabaseStorageKey` con la clave de almacenamiento de la sesión activa.
 - El backend permite por defecto los orígenes `localhost:5173`, `localhost:5500`, `127.0.0.1:5500` y `localhost:3000`. Para otros puertos, añádanlos a `CORS_ORIGINS`.
 
@@ -43,15 +43,31 @@ Los roles se leen desde `perfiles.rol`. Los nombres son sensibles a mayúsculas 
 
 ### Registro, perfil y autenticación
 
-El frontend ofrece registro, acceso y recuperación de contraseña en `frontend/auth.html`. Configuren `supabaseUrl` y `supabaseAnonKey` en `frontend/js/config.js` con el Project URL y la clave pública/publishable del proyecto. La configuración actual deja ambos campos vacíos, por lo que la autenticación no funcionará hasta añadir los valores del proyecto. Nunca pongan `SUPABASE_SERVICE_ROLE_KEY` en los archivos frontend. La autenticación se realiza contra Supabase Auth; la contraseña no se copia a `perfiles`.
+El frontend ofrece registro, acceso y recuperación de contraseña en `frontend/auth.html`. `frontend/js/config.js` contiene el Project URL, la clave publicable y la clave anon/JWT pública del proyecto. Esas dos claves son públicas y aptas para el navegador; `SUPABASE_SECRET_KEY` y la antigua `SUPABASE_SERVICE_ROLE_KEY` son exclusivamente backend. La autenticación se realiza contra Supabase Auth; la contraseña no se copia a `perfiles`.
 
-Para instalaciones nuevas o para corregir el trigger existente, revisen y apliquen `backend/supabase/migrations/20261028010000_secure_profile_on_signup.sql` desde Supabase SQL Editor o CLI. La migración crea el perfil relacionado a `auth.users` con rol inicial fijo `Estudiante`; no confía en un rol proporcionado por el cliente. Comprueben que el esquema use `public.rol_usuario` y las columnas `id`, `rol`, `nombre_completo` y `documento_identidad`, y que el trigger anterior no tenga otro nombre antes de aplicar. El registro no inserta una segunda fila de perfil desde el navegador.
+Para instalaciones nuevas o para corregir el trigger existente, apliquen `backend/supabase/migrations/20261028010000_secure_profile_on_signup.sql` desde Supabase SQL Editor o CLI. La migración reemplaza los triggers `en_registro_usuario` y `on_auth_user_created`; crea el perfil relacionado a `auth.users` con rol inicial fijo `Estudiante`; y no confía en un rol proporcionado por el cliente. El registro no inserta una segunda fila de perfil desde el navegador: Supabase Auth crea `auth.users` y el trigger crea `public.perfiles`. El esquema esperado utiliza `public.rol_usuario` y las columnas `id`, `rol`, `nombre_completo` y `documento_identidad`.
 
 Si está activada la confirmación de correo, la cuenta debe confirmar el email antes de iniciar sesión. Configuren la URL local del frontend en Supabase Auth > URL Configuration y añadan el dominio desplegado en producción. La sesión se conserva en `localStorage` del navegador y se renueva mediante el refresh token de Supabase; cerrar sesión invalida el token remoto.
 
 El perfil se consulta y actualiza por `GET/PATCH /api/perfil`; identidad y rol proceden del token validado y el cliente no puede editar el rol. Las rutas de negocio deben seguir autorizando cada operación por rol y propiedad.
 
 El proyecto debe servir `frontend/` sobre HTTP (por ejemplo Live Server en `http://localhost:5500`); abrir los HTML como `file://` no es una URL de redirect OAuth/recuperación soportada por Supabase. Para finalizar el alta, configure ese origen en Supabase Auth, revise el trigger y compruebe que la tabla `perfiles` y su enum tengan las columnas y valores documentados. No existe una configuración Supabase ni una base real incluida en el repositorio, así que los accesos externos requieren esas credenciales y ajustes.
+
+En el Dashboard de Supabase, en **Authentication > URL Configuration**, configuren como `Site URL` el origen exacto del servidor frontend (por ejemplo `http://localhost:5500`) y agreguen como `Redirect URLs` `http://localhost:5500/**` y `http://127.0.0.1:5500/**`. El formulario de registro solicita el regreso a `auth.html`; al confirmar el correo, el frontend guarda el access token del callback y continúa al dashboard. El origen del frontend también debe estar permitido por `CORS_ORIGINS` del backend.
+
+La tabla de ofertas usada por el backend es `public.oferta_pasantia`, de acuerdo con el nombre verificado en la base activa. Las demás tablas esperadas son `public.perfiles`, `public.postulaciones` y `public.bitacora_horas`; sus claves y columnas deben conservar las relaciones indicadas por el DDL.
+
+Para asignar `Empresa` o `Institucion`, creen primero la cuenta por el flujo normal y verifiquen su identidad; luego una persona administradora con acceso al SQL Editor puede actualizar `public.perfiles.rol` por el correo confirmado:
+
+```sql
+UPDATE public.perfiles AS p
+SET rol = 'Empresa'::public.rol_usuario
+FROM auth.users AS u
+WHERE p.id = u.id
+  AND u.email = 'empresa@ejemplo.com';
+```
+
+Usen `'Institucion'::public.rol_usuario` para una institución. Verifiquen el resultado con una consulta `SELECT` antes de asignar el rol. El enum actual no define un rol `Admin`: la administración de la base se hace desde Supabase, no mediante una cuenta de frontend. No asignen roles desde `raw_user_meta_data` ni acepten ese campo desde el cliente. Si se requiere un rol de administrador de la aplicación, hay que diseñar explícitamente el enum, los permisos del backend y las políticas RLS; no basta con agregar un valor en la tabla.
 
 ### Configuración del servidor
 
@@ -61,13 +77,13 @@ El backend carga estas variables desde `.env`:
 PORT=3000
 NODE_ENV=development
 SUPABASE_URL=https://<PROJECT_REF>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<SECRET_SERVER_SIDE>
+SUPABASE_SECRET_KEY=<SECRET_SERVER_SIDE>
 CORS_ORIGINS=http://localhost:5173
 ```
 
 `CORS_ORIGINS` acepta una lista separada por comas de orígenes completos, por ejemplo `https://frontend.example.com,http://localhost:5173`. En desarrollo, si no se define, el servidor permite `http://localhost:5173`, `http://localhost:5500`, `http://127.0.0.1:5500` y `http://localhost:3000`; en producción es obligatorio configurarlo y el proceso no iniciará si falta. CORS restringe el acceso desde navegadores; no sustituye la autenticación y no impide llamadas directas con cURL o Postman. Las solicitudes sin header `Origin` se permiten para herramientas de línea de comandos.
 
-No compartan ni incluyan `SUPABASE_SERVICE_ROLE_KEY` en el frontend, el repositorio ni los logs. `.env` está excluido por `.gitignore`.
+El backend también acepta `SUPABASE_SERVICE_ROLE_KEY` como nombre compatible con instalaciones antiguas, pero se recomienda `SUPABASE_SECRET_KEY`. No compartan ni incluyan ninguna de esas claves en el frontend, el repositorio ni los logs. `.env` está excluido por `.gitignore`.
 
 ## Ofertas
 

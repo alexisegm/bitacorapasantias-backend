@@ -35,7 +35,7 @@ class PostulacionesStore {
             .select(`
                 id,
                 estado,
-                ofertas_pasantias!inner ( id_empresa )
+                oferta_pasantia!inner ( id_empresa )
             `)
             .eq('id', id_postulacion)
             .maybeSingle();
@@ -64,7 +64,7 @@ class PostulacionesStore {
                 id_estudiante,
                 estado,
                 creado_en,
-                ofertas_pasantias!inner (
+                oferta_pasantia!inner (
                     id,
                     id_empresa,
                     titulo
@@ -75,7 +75,7 @@ class PostulacionesStore {
         if (rol === 'Estudiante') {
             query = query.eq('id_estudiante', idUsuario);
         } else if (rol === 'Empresa') {
-            query = query.eq('ofertas_pasantias.id_empresa', idUsuario);
+            query = query.eq('oferta_pasantia.id_empresa', idUsuario);
         } else {
             throw new Error('Rol no autorizado para visualizar postulaciones.');
         }

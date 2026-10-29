@@ -14,7 +14,7 @@ El registro público asigna exclusivamente el rol `Estudiante`. La migración `s
 
 ## 3. Aislamiento de datos
 
-El backend usa `SUPABASE_SERVICE_ROLE_KEY`, que omite RLS. Por ello, las consultas de Store que leen datos privados deben filtrar usando el ID y rol obtenidos del usuario autenticado, no parámetros del cliente. El filtro por sí solo no constituye una garantía matemática: debe revisarse y probarse cada consulta, incluyendo las relaciones y los permisos de mutación. RLS y restricciones de base de datos deben mantenerse como defensa adicional cuando sea posible.
+El backend usa `SUPABASE_SECRET_KEY` (o, por compatibilidad, `SUPABASE_SERVICE_ROLE_KEY`), que tiene privilegios elevados y omite RLS. Por ello, las consultas de Store que leen datos privados deben filtrar usando el ID y rol obtenidos del usuario autenticado, no parámetros del cliente. El filtro por sí solo no constituye una garantía matemática: debe revisarse y probarse cada consulta, incluyendo las relaciones y los permisos de mutación. RLS y restricciones de base de datos deben mantenerse como defensa adicional cuando sea posible. Estas claves son solo del servidor; únicamente las claves publicable/anon pertenecen al frontend.
 
 ## 4. CORS
 

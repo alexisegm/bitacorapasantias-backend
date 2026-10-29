@@ -2,13 +2,13 @@ const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Faltan las credenciales de Supabase en el archivo .env');
+    throw new Error('Configura SUPABASE_URL y SUPABASE_SECRET_KEY en backend/.env.');
 }
 
-// Esta clave omite RLS: las consultas con datos privados deben aplicar sus propios filtros de autorización.
+// Esta clave omite RLS; cada consulta privada debe aplicar filtros de autorización en el backend.
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 module.exports = supabase;

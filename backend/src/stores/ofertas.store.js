@@ -3,7 +3,7 @@ const supabase = require('../config/supabase');
 class OfertasStore {
     async crearOferta(datos, id_empresa) {
         const { data, error } = await supabase
-            .from('ofertas_pasantias')
+            .from('oferta_pasantia')
             .insert([{
                 id_empresa: id_empresa,
                 titulo: datos.titulo,
@@ -19,7 +19,7 @@ class OfertasStore {
 
     async obtenerOfertasActivas() {
         const { data, error } = await supabase
-            .from('ofertas_pasantias')
+            .from('oferta_pasantia')
             .select(`
                 id,
                 titulo,

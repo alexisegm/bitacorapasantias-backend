@@ -15,7 +15,8 @@
 
     const recoveryParams = new URLSearchParams(global.location.hash.slice(1));
     const isPasswordRecovery = recoveryParams.get('type') === 'recovery' && Boolean(recoveryParams.get('access_token'));
-    if (isPasswordRecovery) {
+    const hasAuthCallback = Boolean(recoveryParams.get('access_token') && recoveryParams.get('refresh_token'));
+    if (hasAuthCallback) {
         const expiresIn = Number(recoveryParams.get('expires_in') || 3600);
         session = {
             access_token: recoveryParams.get('access_token'),
@@ -29,6 +30,12 @@
     }
 
     function saveSession(nextSession) {
+        if (nextSession?.access_token && !nextSession.expires_at && nextSession.expires_in) {
+            nextSession = {
+                ...nextSession,
+                expires_at: Math.floor(Date.now() / 1000) + Number(nextSession.expires_in)
+            };
+        }
         session = nextSession;
         if (nextSession) {
             localStorage.setItem(sessionKey, JSON.stringify(nextSession));
@@ -46,16 +53,18 @@
 
     async function authRequest(path, { method = 'POST', body, token } = {}) {
         ensureConfigured();
+        const apiKey = config.supabasePublishableKey || config.supabaseAnonKey;
+        const bearerToken = token || config.supabaseAnonKey;
         const headers = {
-            apikey: config.supabaseAnonKey
+            apikey: apiKey
         };
 
         if (body !== undefined) {
             headers['Content-Type'] = 'application/json';
         }
 
-        if (token) {
-            headers.Authorization = `Bearer ${token}`;
+        if (bearerToken) {
+            headers.Authorization = `Bearer ${bearerToken}`;
         }
 
         let response;
@@ -102,7 +111,7 @@
 
     async function getSession() {
         if (!session) return null;
-        if (session.expires_at && session.expires_at * 1000 < Date.now() + 30_000) {
+        if (!session.expires_at || session.expires_at * 1000 < Date.now() + 30_000) {
             return refreshSession();
         }
         return session;
@@ -118,6 +127,9 @@
             const currentSession = await getSession();
             return currentSession?.access_token || null;
         },
+        async refreshSession() {
+            return refreshSession();
+        },
         async signIn(email, password) {
             const result = await authRequest('token?grant_type=password', {
                 body: { email, password }
@@ -126,7 +138,8 @@
             return result;
         },
         async signUp({ email, password, nombreCompleto, documentoIdentidad }) {
-            const result = await authRequest('signup', {
+            const redirectTo = `${global.location.origin}${global.location.pathname.replace(/[^/]*$/, 'auth.html')}`;
+            const result = await authRequest(`signup?redirect_to=${encodeURIComponent(redirectTo)}`, {
                 body: {
                     email,
                     password,
@@ -181,7 +194,7 @@
         }
     };
 
-    configured = Boolean(config.supabaseUrl && config.supabaseAnonKey);
+    configured = Boolean(config.supabaseUrl && (config.supabasePublishableKey || config.supabaseAnonKey));
     auth.isConfigured = configured;
     global.PraxisTrackAuth = auth;
     global.PraxisTrackAuthReady = Promise.resolve(auth);

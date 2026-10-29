@@ -84,6 +84,11 @@
             throw new Error(`No se pudo conectar con la API (${apiBaseUrl}). Verifica que el backend esté activo y que CORS permita este origen.`);
         }
 
+        if (response.status === 401 && options.auth !== false && !options._retried && global.PraxisTrackAuth) {
+            await global.PraxisTrackAuth.refreshSession();
+            return request(path, { ...options, _retried: true });
+        }
+
         const responseBody = await response.json();
         if (!response.ok) {
             const message = responseBody && (

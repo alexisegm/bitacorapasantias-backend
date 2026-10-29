@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION public.handle_new_user_profile()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
 BEGIN
     INSERT INTO public.perfiles (
@@ -23,7 +23,10 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS en_registro_usuario ON auth.users;
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+DROP FUNCTION IF EXISTS public.manejar_nuevo_usuario();
 
 CREATE TRIGGER on_auth_user_created
 AFTER INSERT ON auth.users

@@ -135,27 +135,11 @@
 
         const avatar = header.querySelector('img[alt*="Mateo"], img[alt*="perfil"]') ||
             [...header.querySelectorAll('.material-symbols-outlined')].find(element => element.textContent.trim() === 'person');
-        const avatarContainer = avatar?.closest('.group') || avatar?.parentElement;
-        if (avatarContainer && (avatar?.tagName === 'IMG' || avatar?.textContent.trim() === 'person')) {
-            avatarContainer.classList.add('cursor-pointer');
-            avatarContainer.setAttribute('role', 'link');
-            avatarContainer.setAttribute('tabindex', '0');
-            avatarContainer.setAttribute('aria-label', 'Abrir perfil');
-            avatarContainer.addEventListener('click', () => { window.location.href = 'perfil.html'; });
-            avatarContainer.addEventListener('keydown', event => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    window.location.href = 'perfil.html';
-                }
-            });
-        }
-
-        const profileName = [...header.querySelectorAll('span, div')].find(element =>
-            element.childElementCount === 0 && /^Mateo(?:\s|$)/.test(element.textContent.trim())
-        );
-        if (profileName) {
-            profileName.classList.add('cursor-pointer');
-            profileName.addEventListener('click', () => { window.location.href = 'perfil.html'; });
+        const profileButton = avatar?.closest('button');
+        if (profileButton) {
+            profileButton.classList.add('cursor-pointer');
+            profileButton.setAttribute('aria-label', 'Abrir perfil');
+            profileButton.addEventListener('click', () => { window.location.href = 'perfil.html'; });
         }
 
         if (currentRoute.key === 'postulaciones') {
@@ -193,26 +177,19 @@
             return;
         }
 
-        try {
-            activeProfile = await api.getProfile();
-            const displayName = activeProfile.nombre_completo || session.user?.email || 'Mi perfil';
-            const nameLabel = [...header.querySelectorAll('span, div')].find(element =>
-                element.childElementCount === 0 && /^Mateo(?:\s|$)/.test(element.textContent.trim())
-            );
+        activeProfile = await api.getProfile();
+        const displayName = activeProfile.nombre_completo || session.user?.email || 'Mi perfil';
+        const profileButton = header.querySelector('img[alt*="Mateo"], img[alt*="perfil"]')?.closest('button');
+        if (profileButton) {
+            const nameLabel = profileButton.querySelector('div.flex-col > span:first-child');
+            const roleLabel = profileButton.querySelector('div.flex-col > span:nth-child(2)');
+            const avatar = profileButton.querySelector('img');
             if (nameLabel) nameLabel.textContent = displayName;
-            const profileName = [...header.querySelectorAll('span, div')].find(element =>
-                element.childElementCount === 0 && element.textContent.trim() === displayName
-            );
-            if (profileName) {
-                profileName.classList.add('cursor-pointer');
-                profileName.addEventListener('click', () => { window.location.href = 'perfil.html'; });
-            }
-        } catch (error) {
-            showStatus(error.message, true);
+            if (roleLabel) roleLabel.textContent = activeProfile.rol || '';
+            if (avatar) avatar.alt = `Foto de perfil de ${displayName}`;
+            profileButton.setAttribute('aria-label', `Abrir perfil de ${displayName}`);
         }
 
-        const accountLink = makeElement('a', 'rounded-lg border border-outline-variant px-3 py-2 text-xs font-semibold text-on-surface hover:border-primary', 'Mi perfil');
-        accountLink.href = 'perfil.html';
         const signOut = makeElement('button', 'rounded-lg border border-outline-variant px-3 py-2 text-xs font-semibold text-on-surface hover:border-primary', 'Cerrar sesión');
         signOut.type = 'button';
         signOut.dataset.actionBound = 'true';
@@ -226,7 +203,7 @@
                 showStatus(error.message, true);
             }
         });
-        controls.append(accountLink, signOut);
+        controls.append(signOut);
     }
 
     function initializeAuthPage() {
@@ -963,6 +940,7 @@
             await initializeSessionControls();
         } catch (error) {
             showStatus(error.message, true);
+            return;
         }
 
         const page = window.location.pathname.split('/').pop().toLowerCase();

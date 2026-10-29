@@ -65,7 +65,7 @@ class BitacoraStore {
                 postulaciones!inner (
                     id,
                     id_estudiante,
-                    ofertas_pasantias!inner ( id_empresa )
+                    oferta_pasantia!inner ( id_empresa )
                 )
             `)
             .eq('id', id_registro)
@@ -99,7 +99,7 @@ class BitacoraStore {
                 creado_en,
                 postulaciones!inner (
                     id_estudiante,
-                    ofertas_pasantias!inner ( id_empresa, titulo )
+                    oferta_pasantia!inner ( id_empresa, titulo )
                 )
             `)
             .order('fecha', { ascending: false });
@@ -107,7 +107,7 @@ class BitacoraStore {
         if (rol === 'Estudiante') {
             query = query.eq('postulaciones.id_estudiante', idUsuario);
         } else if (rol === 'Empresa') {
-            query = query.eq('postulaciones.ofertas_pasantias.id_empresa', idUsuario);
+            query = query.eq('postulaciones.oferta_pasantia.id_empresa', idUsuario);
         } else {
             throw new Error('Rol no autorizado para visualizar bitácoras.');
         }
