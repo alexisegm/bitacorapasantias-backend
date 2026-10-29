@@ -16,6 +16,7 @@
     const recoveryParams = new URLSearchParams(global.location.hash.slice(1));
     const isPasswordRecovery = recoveryParams.get('type') === 'recovery' && Boolean(recoveryParams.get('access_token'));
     const hasAuthCallback = Boolean(recoveryParams.get('access_token') && recoveryParams.get('refresh_token'));
+    const callbackError = recoveryParams.get('error_description') || recoveryParams.get('error');
     if (hasAuthCallback) {
         const expiresIn = Number(recoveryParams.get('expires_in') || 3600);
         session = {
@@ -120,6 +121,7 @@
     const auth = {
         isConfigured: configured,
         isPasswordRecovery,
+        callbackError,
         async getSession() {
             return getSession();
         },

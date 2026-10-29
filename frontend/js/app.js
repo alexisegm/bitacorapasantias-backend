@@ -133,15 +133,6 @@
             });
         }
 
-        const avatar = header.querySelector('img[alt*="Mateo"], img[alt*="perfil"]') ||
-            [...header.querySelectorAll('.material-symbols-outlined')].find(element => element.textContent.trim() === 'person');
-        const profileButton = avatar?.closest('button');
-        if (profileButton) {
-            profileButton.classList.add('cursor-pointer');
-            profileButton.setAttribute('aria-label', 'Abrir perfil');
-            profileButton.addEventListener('click', () => { window.location.href = 'perfil.html'; });
-        }
-
         if (currentRoute.key === 'postulaciones') {
             const main = document.querySelector('main');
             const adjustMainOffset = () => {
@@ -169,26 +160,42 @@
         }
         controls.replaceChildren();
 
-        const session = await auth.getSession();
+        const profileLink = header.querySelector('[data-profile-trigger]');
+        let session = await auth.getSession();
+        if (session) {
+            try {
+                activeProfile = await api.getProfile();
+            } catch (error) {
+                showStatus(error.message, true);
+                session = await auth.getSession();
+            }
+        }
+
         if (!session) {
+            activeProfile = null;
+            if (profileLink) {
+                profileLink.textContent = 'Mi perfil';
+                profileLink.href = 'auth.html';
+                profileLink.setAttribute('aria-label', 'Inicia sesión para ver tu perfil');
+            }
             const signIn = makeElement('a', 'rounded-lg bg-primary px-3 py-2 text-xs font-bold text-on-primary', 'Iniciar sesión');
             signIn.href = 'auth.html';
             controls.append(signIn);
             return;
         }
 
-        activeProfile = await api.getProfile();
-        const displayName = activeProfile.nombre_completo || session.user?.email || 'Mi perfil';
-        const profileButton = header.querySelector('img[alt*="Mateo"], img[alt*="perfil"]')?.closest('button');
-        if (profileButton) {
-            const nameLabel = profileButton.querySelector('div.flex-col > span:first-child');
-            const roleLabel = profileButton.querySelector('div.flex-col > span:nth-child(2)');
-            const avatar = profileButton.querySelector('img');
-            if (nameLabel) nameLabel.textContent = displayName;
-            if (roleLabel) roleLabel.textContent = activeProfile.rol || '';
-            if (avatar) avatar.alt = `Foto de perfil de ${displayName}`;
-            profileButton.setAttribute('aria-label', `Abrir perfil de ${displayName}`);
+        const displayName = activeProfile?.nombre_completo ||
+            session.user?.user_metadata?.nombre_completo ||
+            session.user?.email ||
+            'Mi perfil';
+        if (profileLink) {
+            profileLink.textContent = displayName;
+            profileLink.href = 'perfil.html';
+            profileLink.setAttribute('aria-label', `Abrir perfil de ${displayName}`);
         }
+        document.querySelectorAll('[data-user-name]').forEach(element => {
+            element.textContent = displayName;
+        });
 
         const signOut = makeElement('button', 'rounded-lg border border-outline-variant px-3 py-2 text-xs font-semibold text-on-surface hover:border-primary', 'Cerrar sesión');
         signOut.type = 'button';
@@ -323,7 +330,10 @@
             }
         });
 
-        if (auth.isPasswordRecovery) {
+        const callbackError = auth.callbackError || new URLSearchParams(window.location.search).get('callback_error');
+        if (callbackError) {
+            setMessage(`El enlace de Supabase no es válido o expiró: ${callbackError}. Vuelve a solicitar el correo de confirmación o recuperación.`, true);
+        } else if (auth.isPasswordRecovery) {
             loginForm.classList.add('hidden');
             signupForm.classList.add('hidden');
             document.querySelector('[role="tablist"]').classList.add('hidden');
@@ -933,6 +943,12 @@
     }
 
     async function initialize() {
+        if (auth?.callbackError && !window.location.pathname.toLowerCase().endsWith('/auth.html')) {
+            const directory = window.location.pathname.replace(/[^/]*$/, '');
+            window.location.replace(`${directory}auth.html?callback_error=${encodeURIComponent(auth.callbackError)}`);
+            return;
+        }
+
         initializeNavigation();
         if (initializeAuthPage()) return;
 
